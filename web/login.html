@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>美好生活备忘录</title>
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <script src="static/jquery/js/jquery.min.js"></script>
+    <script src="static/bootstrap/js/popper.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="static/vuejs/vue.min.js"></script>
+    <script src="static/vuejs/vue-resource.min.js"></script>
+
+    <style>
+        #form-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+
+        <section id="form-content">
+            <form action="">
+                <div class="form-group">
+                    <label for="name">用户名:</label>
+                    <input id="name" class="form-control" type="text" >
+                </div>
+                <div class="form-group">
+                    <label for="pass">密码:</label>
+                    <input id="pass"class="form-control" type="password">
+                </div>
+                <div class="form-group" >
+                    <button type="button" class="btn btn-primary btn-block">登录</button>
+                </div>
+            </form>
+        </section>
+
+    </div>
+
+    <script type="text/javascript">
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                res: null
+            },
+            methods: {
+                testget: function () {
+                    this.$http.get('/api/testget').then(function (res) {
+                        this.res = res.body
+                    }, function () {})
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

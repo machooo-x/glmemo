@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>美好生活备忘录</title>
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <script src="static/jquery/js/jquery.min.js"></script>
+    <script src="static/bootstrap/js/popper.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="static/vuejs/vue.min.js"></script>
+    <script src="static/vuejs/vue-resource.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+        }
+
+        header {
+            background-color: #1a1818;
+            height: 60px;
+        }
+
+        .header-container {
+            width: 90%;
+            max-width: 980px;
+            margin: 0 auto;
+            height: 60px;
+        }
+
+        .logo-box {
+            height: 100%;
+            width: 60px;
+            position: relative;
+            float: left;
+        }
+
+        .logo-box>img {
+            height: 50px;
+            width: 50px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -25px;
+            margin-left: -25px;
+        }
+
+        .menu-box {
+            float: right;
+            height: 100%;
+        }
+
+        .btn-box {
+            width: 40px;
+            height: 100%;
+            margin-left: 10px;
+            position: relative;
+            float: left;
+        }
+
+        .btn-box img {
+            width: 40px;
+            height: 40px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -20px;
+            margin-left: -20px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+
+        <div class="header-container">
+
+            <div class="logo-box">
+                <img src="./image/login.png" alt="logo">
+            </div>
+            <div class="menu-box">
+                <div class="btn-box">
+                    <img src="./image/add.png" title="添加备忘">
+                </div>
+                <div class="btn-box">
+                    <img src="./image/logout.png" title="注销账号">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="container">
+        <h1>我是该日记的标题</h1>
+        <p>2021.3.7</p>
+        <p>
+            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
+            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
+            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
+            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
+            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
+            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
+        </p>
+        <button class ="btn btn-primary">修改</button>
+        <button class ="btn btn-warning">删除</button>
+
+    </section>
+
+    <script type="text/javascript">
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                res: null
+            },
+            methods: {
+                testget: function () {
+                    this.$http.get('/api/testget').then(function (res) {
+                        this.res = res.body
+                    }, function () {})
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GA1400(Ver.1)</title>
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.css">
+    <script src="static/vuejs/vue.min.js"></script>
+    <script src="static/vuejs/vue-resource.min.js"></script>
+    <style>
+        input,
+        button,
+        select,
+        textarea {
+            line-height: initial;
+        }
+
+
+        ul.grid {
+            list-style: none;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        ul.grid li {
+            padding: 1px;
+            float: left;
+            cursor: pointer;
+            border: 1px solid #e8e8e8;
+            box-sizing: border-box;
+        }
+
+        ul.grid li img {
+            width: 254px;
+            height: 254px;
+            max-width: 254px;
+            max-width: 254px;
+            object-fit: cover;
+            /* display: block; */
+            border: none;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="box">
+        <nav class="navbar navbar-default navbar-static-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">GA1400(Ver.1)</a>
+                </div>
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">在线 <span class="sr-only">(current)</span></a></li>
+                        <li class="active"><a href="index.html">图片 <span class="sr-only">(current)</span></a></li>
+                        <li><a href="dmsindex.html">网管 <span class="sr-only">(current)</span></a></li>
+                        <!-- <li><a href="indexofflined.html">离线 <span class="sr-only">(current)</span></a></li> -->
+                        <li><a href="logger.html">日志 <span class="sr-only">(current)</span></a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <table class=" table table-condensed table-bordered"
+                        style="white-space: nowrap; text-align: center;">
+                        <thead>
+                            <tr>
+                                <td>设备ID</td>
+                                <td>开始时间</td>
+                                <td>结束时间</td>
+                                <td>查看</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <td><input placeholder="0000000000-0" v-model="deviceid"
+                                    style="text-align: center;"></input>
+                            </td>
+                            <td><input v-model="startTime" style="text-align: center;"></input>
+                            </td>
+                            <td><input v-model="endTime" style="text-align: center;"></input>
+                            </td>
+                            <td><a href="javascript:void(0)" @click="show(startTime,endTime,deviceid)">show</a>
+                            </td>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <p v-if="images!==null" style="text-align: center;font-size: 200%;">
+                        图片数量{{Object.keys(images.Images).length}}个</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <form>
+                        <ul v-if="images!==null" class="grid">
+                            <li v-for="image in images.Images">
+                                <img :src=image.Path alt="抓拍图" />
+                            </li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+
+            <script type="text/javascript">
+                window.onload = function () {
+                    var vm = new Vue({
+                        el: '#box',
+                        data: {
+                            deviceid: "",
+                            startTime: "20201208010203",
+                            endTime: "20211208010203",
+                            images: null,
+                        },
+                        methods: {
+                            show: function (start, end, id) {
+                                this.$http.get('/api/images?starttime=' + start +
+                                        '&endtime=' + end + '&deviceid=' + id)
+                                    .then(function (res) {
+                                        this.images = res.body
+                                    }, function () {});
+                            },
+                        },
+                    })
+                }
+            </script>
+</body>
+
+</html>
