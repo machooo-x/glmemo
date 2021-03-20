@@ -72,53 +72,105 @@
 </head>
 
 <body>
-    <header>
+    <div id="app">
+        <header>
 
-        <div class="header-container">
+            <div class="header-container">
 
-            <div class="logo-box">
-                <img src="./image/login.png" alt="logo">
-            </div>
-            <div class="menu-box">
-                <div class="btn-box">
-                    <img src="./image/add.png" title="添加备忘">
+                <div class="logo-box">
+                    <img src="./image/login.png" alt="logo">
                 </div>
-                <div class="btn-box">
-                    <img src="./image/logout.png" title="注销账号">
+                <div class="menu-box">
+                    <div class="btn-box">
+                        <a :href="'/web/change.html?uuid=' + this.uuid"><img src="./image/add.png" title="添加备忘"> </a>
+                    </div>
+                    <div class="btn-box">
+                        <a href="/web/login.html"><img src="./image/logout.png" title="注销账号"> </a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <section class="container">
-        <h1>我是该日记的标题</h1>
-        <p>2021.3.7</p>
-        <p>
-            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
-            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
-            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
-            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
-            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
-            今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！今天很不错！
-        </p>
-        <button class ="btn btn-primary">修改</button>
-        <button class ="btn btn-warning">删除</button>
+        <section class="container">
+            <div v-if="record!==null">
+                <div class="jumbotron">
+                    <a :href="'/web/info.html?uuid=' + record.uuid + '&recordid=' + record.id">
+                        <h1 class="panel-title">{{record.title}}</h1>
+                    </a>
 
-    </section>
+                    <p>{{record.date}}</p>
 
+                    <p>{{record.text}}</p>
+                </div>
+
+            </div>
+            <a :href="'/web/change.html?uuid=' + record.uuid + '&recordid=' + record.id"><button
+                    class="btn btn-primary">修改</button></a>
+            <a><button class="btn btn-warning" data-toggle="modal" data-target="#myModal">删除</button></a>
+            <!-- Modal -->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <p class="modal-title" id="myModalLabel" style="color: red;">提示</p>
+                        </div>
+                        <div class="modal-body">
+                            确认删除后，该条记录将不复存在！（切记谨慎操作）
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" @click="delrecord">确认</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
     <script type="text/javascript">
         var vm = new Vue({
             el: '#app',
             data: {
-                res: null
+                uuid: "",
+                recordid: "",
+                record: null,
+            },
+
+            mounted: function () {
+                var url = location.search; //获取url中"?"符后的字串
+                var theRequest = new Object();
+                if (url.indexOf("?") != -1) {
+                    var str = url.substr(1);
+                    strs = str.split("&");
+                    for (var i = 0; i < strs.length; i++) {
+                        theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                    }
+                }
+                this.uuid = theRequest.uuid
+                this.recordid = theRequest.recordid
+                console.log(this.uuid);
+                console.log(this.recordid);
+                this.init()
             },
             methods: {
-                testget: function () {
-                    this.$http.get('/api/testget').then(function (res) {
-                        this.res = res.body
-                    }, function () {})
-                }
-            }
+                init: function () {
+                    this.$http.get('/showrecord?recordid=' + this.recordid).then(function (res) {
+                            this.record = res.body
+                        },
+                        function (res) {
+                            alert("获取该记录详细信息有误，请稍后重试")
+                        });
+                },
+                delrecord: function () {
+                    this.$http.delete('/delrecord?recordid=' + this.recordid).then(function () {
+                            window.location.href = "/web/home.html?uuid=" + this.uuid
+                        },
+                        function (res) {
+                            alert("删除记录有误，请稍后重试")
+                        });
+                },
+            },
         });
     </script>
 

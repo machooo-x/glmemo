@@ -82,58 +82,120 @@
 </head>
 
 <body>
-    <header>
+    <div id="app">
+        <header>
+            <div class="header-container">
 
-        <div class="header-container">
-
-            <div class="logo-box">
-                <img src="./image/login.png" alt="logo">
-            </div>
-            <div class="menu-box">
-                <div class="btn-box">
-                    <img src="./image/add.png" title="添加备忘">
+                <div class="logo-box">
+                    <img src="./image/login.png" alt="logo">
                 </div>
-                <div class="btn-box">
-                    <img src="./image/logout.png" title="注销账号">
+                <div class="menu-box">
+                    <div class="btn-box">
+                        <a href="#"><img src="./image/add.png" title="添加备忘"> </a>
+                    </div>
+                    <div class="btn-box">
+                        <a href="/web/login.html"><img src="./image/logout.png" title="注销账号"> </a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <section class="container">
-        <form action="">
-            <div class="form-group">
-                <label for="title">请输入标题：</label>
-                <input id="title" class="form-control" type="text">
-            </div>
-
-
-            <div class="form-group">
-                <label for="content">请输入内容：</label>
-                <textarea id="content" name="content" class="form-group">
+        <section class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="title">
+                            <h1>请输入标题：</h1>
+                        </label>
+                        <input id="title" class="form-control" type="text" v-model="title">
+                    </div>
+                    <div class="form-group">
+                        <label for="content">
+                            <h1>请输入内容：</h1>
+                        </label>
+                        <textarea id="content" name="content" class="form-group" v-model="text">
                   </textarea>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-block" @click="addrecord">提交</button>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <button class="btn btn-primary btn-block">提交</button>
-            </div>
-        </form>
-
-    </section>
-
+        </section>
+    </div>
     <script type="text/javascript">
         var vm = new Vue({
             el: '#app',
             data: {
-                res: null
+                uuid: "",
+                recordid: "",
+                title: "",
+                text: "",
+            },
+            mounted: function () {
+                var url = location.search; //获取url中"?"符后的字串
+                var theRequest = new Object();
+                if (url.indexOf("?") != -1) {
+                    var str = url.substr(1);
+                    strs = str.split("&");
+                    for (var i = 0; i < strs.length; i++) {
+                        theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                    }
+                }
+                this.uuid = theRequest.uuid
+                this.recordid = theRequest.recordid
+                console.log(this.uuid);
+                console.log(this.recordid);
+                if (this.recordid != "") {
+                    this.$http.get('/showrecord?recordid=' + this.recordid).then(function (res) {
+                            this.title = res.body.title
+                            this.text = res.body.text
+                        },
+                        function (res) {
+                            alert("获取该记录详细信息有误，请稍后重试")
+                        });
+                    console.log(this.recordid);
+                }
+                if (this.recordid == undefined) {
+                    console.log("marker");
+                }
             },
             methods: {
-                testget: function () {
-                    this.$http.get('/api/testget').then(function (res) {
-                        this.res = res.body
-                    }, function () {})
+
+                addrecord: async function () {
+                    await this.run()
+                },
+                run: function () {
+                    if (this.recordid == undefined) {
+                        this.$http.post('/addrecord?uuid=' + this.uuid, {
+                            title: this.title,
+                            text: this.text
+                        }).then(function (res) {
+                            alert("新建记录成功")
+                            window.location.href = "/web/home.html?uuid=" + this.uuid
+                        }, function () {
+                            alert("新建记录失败...")
+                            window.location.href = '/web/change.html?uuid=' + this.uuid
+                        })
+                        return
+                    }
+                    if (this.recordid != "") {
+                        this.$http.put('/changerecord?recordid=' + this.recordid, {
+                            title: this.title,
+                            text: this.text
+                        }).then(function (res) {
+                                alert("修改记录成功")
+                                window.location.href = "/web/home.html?uuid=" + this.uuid
+                            },
+                            function (res) {
+                                alert("修改记录有误，请稍后重试")
+                            });
+                        return
+                    }
                 }
-            }
-        });
+            },
+
+        })
     </script>
 
 </body>

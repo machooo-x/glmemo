@@ -73,7 +73,7 @@
             margin-top: 30px;
         }
 
-        footer{
+        footer {
             margin-top: 100px;
             text-align: center;
             font-size: 16px;
@@ -83,61 +83,87 @@
 </head>
 
 <body>
-    <header>
+    <div id="app">
+        <header>
 
-        <div class="header-container">
+            <div class="header-container">
 
-            <div class="logo-box">
-                <img src="./image/login.png" alt="logo">
-            </div>
-            <div class="menu-box">
-                <div class="btn-box">
-                    <img src="./image/add.png" title="添加备忘">
+                <div class="logo-box">
+                    <img src="./image/login.png" alt="logo">
                 </div>
-                <div class="btn-box">
-                    <img src="./image/logout.png" title="注销账号">
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <section>
-        <div class="container">
-            <div class="panel panel-default">
-                <div class="panel-heading">Panel heading without title</div>
-                <div class="panel-body">
-                    Panel content
+                <div class="menu-box">
+                    <div class="btn-box">
+                        <a :href="'/web/change.html?uuid=' + this.uuid"><img src="./image/add.png" title="添加备忘"> </a>
+                    </div>
+                    <div class="btn-box">
+                        <a href="/web/login.html"><img src="./image/logout.png" title="注销账号"> </a>
+                    </div>
                 </div>
             </div>
+        </header>
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Panel title</h3>
-                </div>
-                <div class="panel-body">
-                    Panel content
+        <section>
+            <div class="container">
+                <div class="row">
+                    <ul v-if="records!==null" class="list-grou">
+                        <li v-for="record in records" class="list-group-item">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <a :href="'/web/info.html?uuid=' + record.uuid + '&recordid=' + record.id">
+                                        <h3 class="panel-title">{{record.title}}</h3>
+                                    </a>
+                                </div>
+                                <div class="panel-body" style="height: 30px;">
+                                    <div id="date" style="float: left;">
+                                        <p>{{record.date}}</p>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    {{record.text}}
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <footer>
-        <p>machoo@qq.com</p>
-    </footer>
-
+        <footer>
+            <p>machoo@qq.com</p>
+        </footer>
+    </div>
     <script type="text/javascript">
         var vm = new Vue({
             el: '#app',
             data: {
-                res: null
+                uuid: "",
+                records: []
+            },
+
+            mounted: function () {
+                var url = location.search; //获取url中"?"符后的字串
+                var theRequest = new Object();
+                if (url.indexOf("?") != -1) {
+                    var str = url.substr(1);
+                    strs = str.split("&");
+                    for (var i = 0; i < strs.length; i++) {
+                        theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                    }
+                }
+                this.uuid = theRequest.uuid
+                console.log(this.uuid);
+                this.init()
             },
             methods: {
-                testget: function () {
-                    this.$http.get('/api/testget').then(function (res) {
-                        this.res = res.body
-                    }, function () {})
-                }
-            }
+                init: function () {
+                    this.$http.get('/getrecordlist?uuid=' + this.uuid).then(function (res) {
+                            this.records = res.body
+                        },
+                        function (res) {
+                            alert("获取备忘录信息有误，请稍后重试")
+                        });
+                },
+            },
         });
     </script>
 </body>

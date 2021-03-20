@@ -29,14 +29,17 @@
             <form action="">
                 <div class="form-group">
                     <label for="name">用户名:</label>
-                    <input id="name" class="form-control" type="text" >
+                    <input id="name" class="form-control" type="text" name="" v-model="name">
                 </div>
                 <div class="form-group">
                     <label for="pass">密码:</label>
-                    <input id="pass"class="form-control" type="password">
+                    <input id="pass" class="form-control" type="password" name="" v-model="pwd">
                 </div>
-                <div class="form-group" >
-                    <button type="button" class="btn btn-primary btn-block">登录</button>
+                <div class="form-group">
+                    <button id="submit" type="button" class="btn btn-primary btn-block" @click="login">登录</button>
+                </div>
+                <div class="form-group">
+                    <a id="submit" type="button" class="btn btn-success btn-block" href="regist.html">注册</a>
                 </div>
             </form>
         </section>
@@ -47,13 +50,25 @@
         var vm = new Vue({
             el: '#app',
             data: {
-                res: null
+                name: "",
+                pwd: ""
             },
+
             methods: {
-                testget: function () {
-                    this.$http.get('/api/testget').then(function (res) {
-                        this.res = res.body
-                    }, function () {})
+                login: function () {
+                    if (this.name == "") {
+                        alert("用户名不许为空")
+                        return
+                    } else if (this.pwd == "") {
+                        alert("密码不许为空")
+                        return
+                    }
+                    this.$http.get('/login?name=' + this.name + '&pwd=' + this.pwd).then(function (res) {
+                            window.location.href = "/web/home.html?uuid=" + res.body;
+                        },
+                        function (res) {
+                            alert(res.body)
+                        });
                 }
             }
         });
