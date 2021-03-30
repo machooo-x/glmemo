@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>美好生活备忘录</title>
     <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static\css\usual.css">
     <script src="static/jquery/js/jquery.min.js"></script>
     <script src="static/bootstrap/js/popper.min.js"></script>
     <script src="static/bootstrap/js/bootstrap.min.js"></script>
@@ -13,70 +14,8 @@
     <script src="static/vuejs/vue-resource.min.js"></script>
 
     <style>
-        * {
-            margin: 0;
-        }
-
-        header {
-            background-color: #1a1818;
-            height: 60px;
-        }
-
-        .header-container {
-            width: 90%;
-            max-width: 980px;
-            margin: 0 auto;
-            height: 60px;
-        }
-
-        .logo-box {
-            height: 100%;
-            width: 60px;
-            position: relative;
-            float: left;
-        }
-
-        .logo-box>img {
-            height: 50px;
-            width: 50px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin-top: -25px;
-            margin-left: -25px;
-        }
-
-        .menu-box {
-            float: right;
-            height: 100%;
-        }
-
-        .btn-box {
-            width: 40px;
-            height: 100%;
-            margin-left: 10px;
-            position: relative;
-            float: left;
-        }
-
-        .btn-box img {
-            width: 40px;
-            height: 40px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin-top: -20px;
-            margin-left: -20px;
-        }
-
-        form {
-            margin: 50px;
-        }
-
-        textarea {
-            width: 100%;
-            height: 300px;
-            resize: none;
+        .form-group {
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -85,10 +24,10 @@
     <div id="app">
         <header>
             <div class="header-container">
-
                 <div class="logo-box">
-                    <img src="./image/login.png" alt="logo">
+                    <a :href="'/web/home.html?uuid=' + this.uuid"><img src="./image/login.png" alt="logo"></a>
                 </div>
+                <h1 class="title-text">美好生活备忘录</h1>
                 <div class="menu-box">
                     <div class="btn-box">
                         <a href="#"><img src="./image/add.png" title="添加备忘"> </a>
@@ -99,7 +38,6 @@
                 </div>
             </div>
         </header>
-
         <section class="container">
             <div class="row">
                 <div class="col-12">
@@ -114,7 +52,46 @@
                             <h1>请输入内容：</h1>
                         </label>
                         <textarea id="content" name="content" class="form-group" v-model="text">
-                  </textarea>
+                        </textarea>
+                    </div>
+                    <div class="form-group">
+                        <ul style="padding-left: 0;">
+                            <li v-for="f in files" style="list-style: none; margin: 0;">
+                                <a class="btn btn-warning btn-xs" @click="">删除文件</a>
+                                <a>{{f.name}}</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="form-group">
+                        <form id="form1" action="/uploadfile" method="post" enctype="multipart/form-data"
+                            target="frame1" style="margin: 0;">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <div class="form-group">
+                                        <input type="file" name="file">
+                                        <p class="help-block">请先上传文件，后点击提交</p>
+                                        <button type="button" class="btn btn-default" @click="upload">上传文件</button>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <iframe name="frame1" frameborder="0" height="99px" width="100%"
+                                        scrolling="no"></iframe>
+                                </div>
+                                <div style="height: 0;width: 0;">
+                                    <input type="text" name="uuid" value=this.uuid /><br />
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <button class="btn btn-info btn-block" @click="tempsave">暂存数据</button>
+                            </div>
+                            <div class="col-sm-6">
+                                <button class="btn btn-warning btn-block" @click="deltempsave">取消暂存</button>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <button class="btn btn-primary btn-block" @click="addrecord">提交</button>
@@ -122,7 +99,11 @@
                 </div>
             </div>
         </section>
+        <footer>
+            <p>machooo@qq.com</p>
+        </footer>
     </div>
+
     <script type="text/javascript">
         var vm = new Vue({
             el: '#app',
@@ -131,6 +112,10 @@
                 recordid: "",
                 title: "",
                 text: "",
+                files: [],
+                filename: "",
+                iscommit: 1, // 默认提交
+                isaddsave: 1, // 默认是新建时的暂存
             },
             mounted: function () {
                 var url = location.search; //获取url中"?"符后的字串
@@ -146,7 +131,22 @@
                 this.recordid = theRequest.recordid
                 console.log(this.uuid);
                 console.log(this.recordid);
-                if (this.recordid != "") {
+                if (this.recordid === undefined) {
+                    this.$http.get('/querytempsave?uuid=' + this.uuid).then(function (res) {
+                            this.title = res.body.title
+                            this.text = res.body.text
+                            this.recordid = res.body.id
+                            date = res.body.date
+                            console.log(this.recordid);
+                            if (date == "0") {
+                                this.recordid = this.generateRecordID()
+                            }
+                            console.log(this.recordid);
+                        },
+                        function (res) {
+                            alert("获取上次暂存数据有误，请稍后重试")
+                        });
+                } else {
                     this.$http.get('/showrecord?recordid=' + this.recordid).then(function (res) {
                             this.title = res.body.title
                             this.text = res.body.text
@@ -155,44 +155,80 @@
                             alert("获取该记录详细信息有误，请稍后重试")
                         });
                     console.log(this.recordid);
+                    this.isaddsave = 0
                 }
-                if (this.recordid == undefined) {
-                    console.log("marker");
-                }
+                // this.getfiles()
             },
             methods: {
+                upload: function () {
+                    $("#form1").submit();
+                    var t = setInterval(function () {
+                        //获取iframe标签里body元素里的文字。即服务器响应过来的"上传成功"或"上传失败"
+                        var word = $("iframe[name='frame1']").contents().find("body")
+                            .text();
+                        if (word != "") {
+                            // alert(word); //弹窗提示是否上传成功
+                            clearInterval(t); //清除定时器
+                            console.log(word); // ---------------在此处暂存标题及内容----------------- work
+                            this.filename = word.substring(8, word.length)
+                            console.log(this.filename);
+                        }
+                    }, 1000);
+                },
 
+                tempsave: function () {
+                    this.iscommit = 0
+                    this.addrecord()
+                },
                 addrecord: async function () {
                     await this.run()
                 },
                 run: function () {
-                    if (this.recordid == undefined) {
-                        this.$http.post('/addrecord?uuid=' + this.uuid, {
+                    // if (this.recordid == undefined) {
+                    this.$http.post('/addrecord?uuid=' + this.uuid + '&recordid=' + this
+                        .recordid +
+                        '&iscommit=' + this.iscommit + '&isaddsave=' + this.isaddsave, {
                             title: this.title,
                             text: this.text
                         }).then(function (res) {
-                            alert("新建记录成功")
+                        alert("操作成功")
+                        window.location.href = "/web/home.html?uuid=" + this.uuid
+                    }, function () {
+                        alert("操作失败...")
+                        window.location.href = '/web/change.html?uuid=' + this.uuid
+                    })
+                    return
+                },
+                generateRecordID: function () {
+                    var d = new Date().getTime();
+                    if (window.performance && typeof window.performance.now === "function") {
+                        d += performance.now(); //use high-precision timer if available
+                    }
+                    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,
+                        function (c) {
+                            var r = (d + Math.random() * 16) % 16 | 0;
+                            d = Math.floor(d / 16);
+                            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                        });
+                    return uuid;
+                },
+                deltempsave: function () {
+                    this.$http.delete('/deltempsave?recordid=' + this.recordid).then(function () {
+                            alert("操作成功")
                             window.location.href = "/web/home.html?uuid=" + this.uuid
-                        }, function () {
-                            alert("新建记录失败...")
-                            window.location.href = '/web/change.html?uuid=' + this.uuid
-                        })
-                        return
-                    }
-                    if (this.recordid != "") {
-                        this.$http.put('/changerecord?recordid=' + this.recordid, {
-                            title: this.title,
-                            text: this.text
-                        }).then(function (res) {
-                                alert("修改记录成功")
-                                window.location.href = "/web/home.html?uuid=" + this.uuid
-                            },
-                            function (res) {
-                                alert("修改记录有误，请稍后重试")
-                            });
-                        return
-                    }
-                }
+                        },
+                        function (res) {
+                            alert("取消暂存有误，请稍后重试")
+                        });
+                },
+                // getfiles: function () {
+                //     this.$http.get('/getfilename').then(function (res) {
+                //             this.files = res.body
+                //         },
+                //         function (res) {
+                //             alert("获取文件名称列表有误，请稍后重试")
+                //         });
+                // },
             },
 
         })

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Multiple file upload</title>
+</head>
+
+<body>
+    <div>
+
+        <Form :model="formItem" ref="formItem" :rules="ruleInline" :label-width="100" lable-position="left">
+
+            <FormItem label="标签名称 : " prop="fc_name">
+                <Input v-model="formItem.fc_name" size="large" placeholder="请输入标签名称" class="input_width"></Input>
+            </FormItem>
+
+
+            <FormItem label="问题描述 : " prop="fc_desc">
+                <Input v-model="formItem.fc_desc" type="textarea" :rows="4" style="width:400px;"
+                    placeholder="请输入问题描述"></Input>
+            </FormItem>
+
+            <FormItem label="论坛分类logo : ">
+                <div class="uploadBox" prop="fc_icon">
+                    <input type="file" @change="doUpload" ref="inputFile" />
+                    <Icon type="ios-plus-empty" class="uploadIcon"></Icon>
+
+                    <div class="imagePreview" v-show="categoryLogoIsShow">
+                        <img :src="formItem.fc_icon" @click="$refs.inputFile.click()" />
+                    </div>
+                </div>
+                <div v-show="categoryLogoIsShow" style="text-align: left;">
+                    <Icon type="information-circled"></Icon>
+                    可点击图片重新选择
+                </div>
+
+            </FormItem>
+
+
+            <FormItem>
+                <Button type="primary" size="large" :loading="submit_loading" @click="submit('formItem')">提交</Button>
+                <Button type="error" size="large" @click="handleDelete" style="margin-left: 8px;">删除</Button>
+            </FormItem>
+
+        </Form>
+
+
+        <Modal v-model="deleteModel" width="260">
+            <p slot="header" style="color:#f60;text-align:center">
+                <Icon type="information-circled"></Icon>
+                <span>删除确认</span>
+            </p>
+            <div style="text-align:center">
+                <p>删除后数据不可恢复,确定要这么做吗?</p>
+            </div>
+            <div slot="footer">
+                <Button type="error" size="large" long :loading="delete_loading" @click="deleteForum">确定删除</Button>
+            </div>
+        </Modal>
+
+
+    </div>
+
+
+</body>
+
+</html>

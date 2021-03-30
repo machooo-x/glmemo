@@ -14,8 +14,8 @@ func RunService(content embed.FS) {
 	syslog.Clog.Infoln(true, "good life memo 初始化中 ...")
 
 	e := echo.New()
-	// e.HideBanner = true
-	// e.HidePort = true
+	e.HideBanner = true
+	e.HidePort = true
 
 	webHandler := http.FileServer(http.FS(content))
 	e.GET("/*.html", echo.WrapHandler(webHandler))

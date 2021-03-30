@@ -1,10 +1,14 @@
 package service
 
 import (
+	"fmt"
 	"glmemo/helper/database"
 	"glmemo/helper/syslog"
 	"glmemo/model"
+	"io"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -115,6 +119,32 @@ func showRecord(c echo.Context) (err error) {
 		return c.String(http.StatusUnauthorized, "记录的id不许为空")
 	}
 	record := &model.Record{}
+	var dataTemp int64
+
+	info := c.QueryParam("info")
+	if info == "" {
+		stmt, err := database.Mysql.Prepare("select record_id,user_id,title,text,update_time from temp_record where record_id = ?")
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		defer stmt.Close()
+		result, err := stmt.Query(recordid)
+		defer result.Close()
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		if result.Next() {
+			err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &dataTemp)
+			if err != nil {
+				syslog.Clog.Errorln(true, err)
+				return err
+			}
+			record.Date = time.Unix(dataTemp, 0).Format("2006-01-02 15:04:05")
+			return c.JSON(http.StatusOK, record)
+		}
+	}
 	stmt, err := database.Mysql.Prepare("select id,user_id,title,text,update_time from record where id = ?")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
@@ -127,8 +157,7 @@ func showRecord(c echo.Context) (err error) {
 		syslog.Clog.Errorln(true, err)
 		return err
 	}
-	var dataTemp int64
-	for result.Next() {
+	if result.Next() {
 		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &dataTemp)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
@@ -138,15 +167,50 @@ func showRecord(c echo.Context) (err error) {
 	}
 	return c.JSON(http.StatusOK, record)
 }
+
+func queryTempSave(c echo.Context) (err error) {
+	uuid := c.QueryParam("uuid")
+	if uuid == "" {
+		return c.String(http.StatusUnauthorized, "记录的id不许为空")
+	}
+	record := &model.Record{}
+	stmt, err := database.Mysql.Prepare("select record_id,user_id,title,text,update_time from temp_record where user_id = ? and is_add_save = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	result, err := stmt.Query(uuid, 1)
+	defer result.Close()
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	var dataTemp int64
+	if result.Next() {
+		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &dataTemp)
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		record.Date = time.Unix(dataTemp, 0).Format("2006-01-02 15:04:05")
+	} else {
+		record.Date = "0"
+	}
+	return c.JSON(http.StatusOK, record)
+}
 func addRecord(c echo.Context) (err error) {
 	userID := c.QueryParam("uuid")
 	if userID == "" {
 		return c.String(http.StatusBadRequest, "用户uuid不许为空")
 	}
 	recordID := c.QueryParam("recordid")
-	if recordID != "" {
-		syslog.Clog.Infoln(true, recordID)
+	if recordID == "" {
+		return c.String(http.StatusBadRequest, "recordid为空")
 	}
+	syslog.Clog.Infoln(true, userID, recordID)
+	isCommit := c.QueryParam("iscommit")
+	isAddSave := c.QueryParam("isaddsave")
 
 	type req struct {
 		Title string `json:"title"`
@@ -163,68 +227,112 @@ func addRecord(c echo.Context) (err error) {
 		return c.String(http.StatusBadRequest, "text不许为空")
 	}
 	tx, err := database.Mysql.Begin()
-	stmt, err := tx.Prepare("insert into record(id,user_id,update_time,title,text,size) values(?,?,?,?,?,?)")
-	if err != nil {
-		syslog.Clog.Errorln(true, err)
-		return err
-	}
-	defer stmt.Close()
-	_, err = stmt.Exec(uuid.New().String(), userID, time.Now().Unix(), reqData.Title, reqData.Text, len(reqData.Text))
-	if err != nil {
-		syslog.Clog.Errorln(true, err)
-		return err
-	}
-
-	return func() error {
-		if tx.Commit() != nil {
-			syslog.Clog.Errorln(true, err)
-			return tx.Rollback()
-		}
-		return nil
-	}()
-}
-
-func changeRecord(c echo.Context) (err error) {
-	recordid := c.QueryParam("recordid")
-	if recordid == "" {
-		return c.String(http.StatusUnauthorized, "记录的id不许为空")
-	}
-
-	type req struct {
-		Title string `json:"title"`
-		Text  string `json:"text"`
-	}
-	reqData := &req{}
-	err = c.Bind(&reqData)
-	if err != nil {
-		syslog.Clog.Errorln(true, err)
-		return err
-	}
-	syslog.Clog.Infoln(true, reqData)
-	if reqData.Text == "" {
-		return c.String(http.StatusBadRequest, "text不许为空")
-	}
-
-	tx, err := database.Mysql.Begin()
-	defer func() {
+	defer func(recordID string, isCommit string) {
 		if tx.Commit() != nil {
 			syslog.Clog.Errorln(true, err)
 			tx.Rollback()
+		} else {
+			if isCommit == "1" {
+				tx, err := database.Mysql.Begin()
+				defer func() {
+					if tx.Commit() != nil {
+						syslog.Clog.Errorln(true, err)
+						tx.Rollback()
+					}
+				}()
+				stmt, err := tx.Prepare("delete from temp_record WHERE record_id = ?")
+				if err != nil {
+					syslog.Clog.Errorln(true, err)
+					return
+				}
+				defer stmt.Close()
+				_, err = stmt.Exec(recordID)
+				if err != nil {
+					syslog.Clog.Errorln(true, err)
+					return
+				}
+				return
+			}
 		}
-	}()
-	stmt, err := tx.Prepare("UPDATE record SET title = ?, text = ?,update_time = ? WHERE id = ?")
+	}(recordID, isCommit)
+
+	// INSERT INTO record(id,user_id,update_time,title,text,size) VALUE("undefined","060d55a9-f611-4c82-b6b4-994006c9c9e6",1616975733,"2","2",2) ON DUPLICATE KEY UPDATE id="undefined",title="0",text="0",size=5;
+
+	var str string
+	if isCommit == "1" {
+		str = "insert into record(id,user_id,update_time,title,text,size) values(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id = ?, user_id = ?, update_time = ?, title = ?, text = ?, size = ?"
+	} else if isCommit == "0" {
+		str = "INSERT INTO temp_record(record_id,user_id,update_time,title,text,size,is_add_save) VALUE(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE record_id=?,user_id = ?,update_time= ?,title=?,text=?,size=?,is_add_save=?"
+		stmt, err := tx.Prepare(str)
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		defer stmt.Close()
+		_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, len(reqData.Text), isAddSave, recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, len(reqData.Text), isAddSave)
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		return nil
+	}
+
+	stmt, err := tx.Prepare(str)
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(reqData.Title, reqData.Text, time.Now().Unix(), recordid)
+	_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, len(reqData.Text), recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, len(reqData.Text))
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
 	}
-	return
+
+	return nil
 }
+
+// func changeRecord(c echo.Context) (err error) {
+// 	recordid := c.QueryParam("recordid")
+// 	if recordid == "" {
+// 		return c.String(http.StatusUnauthorized, "记录的id不许为空")
+// 	}
+
+// 	type req struct {
+// 		Title string `json:"title"`
+// 		Text  string `json:"text"`
+// 	}
+// 	reqData := &req{}
+// 	err = c.Bind(&reqData)
+// 	if err != nil {
+// 		syslog.Clog.Errorln(true, err)
+// 		return err
+// 	}
+// 	syslog.Clog.Infoln(true, reqData)
+// 	if reqData.Text == "" {
+// 		return c.String(http.StatusBadRequest, "text不许为空")
+// 	}
+
+// 	tx, err := database.Mysql.Begin()
+// 	defer func() {
+// 		if tx.Commit() != nil {
+// 			syslog.Clog.Errorln(true, err)
+// 			tx.Rollback()
+// 		}
+// 	}()
+// 	stmt, err := tx.Prepare("UPDATE record SET title = ?, text = ?,update_time = ? WHERE id = ?")
+// 	if err != nil {
+// 		syslog.Clog.Errorln(true, err)
+// 		return err
+// 	}
+// 	defer stmt.Close()
+// 	_, err = stmt.Exec(reqData.Title, reqData.Text, time.Now().Unix(), recordid)
+// 	if err != nil {
+// 		syslog.Clog.Errorln(true, err)
+// 		return err
+// 	}
+// 	return
+// }
 
 func delRecord(c echo.Context) (err error) {
 	recordid := c.QueryParam("recordid")
@@ -250,4 +358,92 @@ func delRecord(c echo.Context) (err error) {
 		return err
 	}
 	return
+}
+
+func delTempSave(c echo.Context) (err error) {
+	recordid := c.QueryParam("recordid")
+	if recordid == "" {
+		return c.String(http.StatusUnauthorized, "删除的记录id不许为空")
+	}
+	tx, err := database.Mysql.Begin()
+	defer func() {
+		if tx.Commit() != nil {
+			syslog.Clog.Errorln(true, err)
+			tx.Rollback()
+		}
+	}()
+	stmt, err := tx.Prepare("delete from temp_record WHERE record_id = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(recordid)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	return
+}
+
+//处理上传文件的控制器
+func uploadfile(c echo.Context) (err error) {
+	defer func() {
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			err = c.String(http.StatusBadRequest, "文件上传失败！请重新上传文件...")
+		}
+	}()
+	syslog.Clog.Infoln(true, "uploadfile 请求")
+
+	uuid := strings.Split(c.Request().Referer(), "=")[1]
+	syslog.Clog.Infoln(true, uuid)
+
+	// 通过FormFile函数获取客户端上传的文件
+	file, err := c.FormFile("file")
+	if err != nil {
+		syslog.Clog.Traceln(true, "marker")
+		return err
+	}
+	syslog.Clog.Infoln(true, "uploadfile 请求")
+
+	//打开用户上传的文件
+	src, err := file.Open()
+	if err != nil {
+		syslog.Clog.Traceln(true, "marker")
+
+		return err
+	}
+	defer src.Close()
+	syslog.Clog.Infoln(true, "uploadfile 请求")
+
+	// 创建目标文件，就是我们打算把用户上传的文件保存到什么地方
+	// file.Filename 参数指的是我们以用户上传的文件名，作为目标文件名，也就是服务端保存的文件名跟用户上传的文件名一样
+	syslog.Clog.Infoln(true, file.Filename)
+	dst, err := os.Create("data/" + uuid + "/" + file.Filename)
+	if err != nil {
+		syslog.Clog.Traceln(true, "marker")
+
+		return err
+	}
+	defer dst.Close()
+
+	// 这里将用户上传的文件复制到服务端的目标文件
+	if _, err = io.Copy(dst, src); err != nil {
+		return err
+	}
+
+	return c.HTML(http.StatusOK, fmt.Sprintf("<p>文件上传成功: %s</p>", file.Filename))
+}
+
+func getFilename(c echo.Context) error {
+	type file struct {
+		Name string `json:"name"`
+	}
+	resp := make([]*file, 0)
+	resp = append(resp, &file{
+		Name: "file111"})
+	resp = append(resp, &file{
+		Name: "file222"})
+	return c.JSON(http.StatusOK, &resp)
 }

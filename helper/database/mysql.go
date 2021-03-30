@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"glmemo/config"
-	"glmemo/helper/syslog"
 
 	// mysql driver
 	_ "github.com/go-sql-driver/mysql"
@@ -13,7 +12,7 @@ import (
 var Mysql *sql.DB
 
 func init() {
-	syslog.Clog.Infoln(true, "初始化 Mysql Service...")
+	// syslog.Clog.Infoln(true, "初始化 Mysql Service...")
 
 	MySQLMaxConnection, _ := config.GLMEMO.Section("mysql").Key("MySQLMaxConnection").Int()
 
@@ -37,7 +36,10 @@ func init() {
 		panic(err)
 	}
 
-	/* create record */
+	/*
+		create record
+		filename 最多支持两个文件，文件名用逗号隔开
+	*/
 	sqlStmt = `
 	create table if not exists record (
 		id char(36) not null,
@@ -45,10 +47,30 @@ func init() {
 		update_time char(10) not null,
 		title varchar(20) not null,
 		text varchar(1024) not null,
-		img varchar(50),
-		video varchar(50),
+		filename varchar(200),
 		size int UNSIGNED not null,
 		PRIMARY KEY (id),
+		constraint foreign key(user_id) references user(uuid));`
+	_, err = Mysql.Exec(sqlStmt)
+	if err != nil {
+		panic(err)
+	}
+
+	/*
+		create temprecord
+		filename 最多支持两个文件，文件名用逗号隔开
+	*/
+	sqlStmt = `
+	create table if not exists temp_record (
+		record_id char(36) not null,
+		user_id char(36) not null,
+		update_time char(10) not null,
+		title varchar(20) not null,
+		text varchar(1024) not null,
+		filename varchar(200),
+		size int UNSIGNED not null,
+		is_add_save bool not null,
+		PRIMARY KEY (record_id),
 		constraint foreign key(user_id) references user(uuid));`
 	_, err = Mysql.Exec(sqlStmt)
 	if err != nil {
@@ -69,4 +91,5 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+
 }

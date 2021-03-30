@@ -12,11 +12,15 @@ func RegRouter(e *echo.Echo) {
 	e.GET("/regist", regist)
 
 	e.GET("/showrecord", showRecord)
+	e.GET("/getfilename", getFilename)
+	e.GET("/querytempsave", queryTempSave)
 
 	e.POST("/addrecord", addRecord)
+	e.POST("/uploadfile", uploadfile)
 
-	e.PUT("/changerecord", changeRecord)
+	// e.PUT("/changerecord", changeRecord)
 
 	e.DELETE("/delrecord", delRecord)
+	e.DELETE("/deltempsave", delTempSave)
 
 }

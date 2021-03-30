@@ -19,12 +19,26 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
+        body {
+            background-size: 100%, 100%;
+            background-attachment: fixed;
+            text-align: center;
+            background-image: url("./image/background.jpg");
+            background-origin: content;
+            /*从content区域开始显示背景*/
+            background-position: 50%;
+            /* 图片上下左右居中 */
+        }
     </style>
 </head>
 
 <body>
     <div id="app">
-
+        <div>
+            <br><br><br><br><br><br><br><br>
+            <h1>美好生活备忘录<small style="font-size: x-small;"><br>machooo@qq.com</small></h1>
+        </div>
         <section id="form-content">
             <form action="">
                 <div class="form-group">
@@ -43,7 +57,6 @@
                 </div>
             </form>
         </section>
-
     </div>
 
     <script type="text/javascript">

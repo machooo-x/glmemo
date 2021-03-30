@@ -19,12 +19,26 @@
             left: 50%;
             transform: translate(-50%, -50%);
         }
+
+        body {
+            background-size: 100%, 100%;
+            background-attachment: fixed;
+            text-align: center;
+            background-image: url("./image/background.jpg");
+            background-origin: content;
+            /*从content区域开始显示背景*/
+            background-position: 50%;
+            /* 图片上下左右居中 */
+        }
     </style>
 </head>
 
 <body>
     <div id="app">
-
+        <div>
+            <br><br><br><br><br><br><br><br>
+            <h1>美好生活备忘录<small style="font-size: x-small;"><br>machooo@qq.com</small></h1>
+        </div>
         <section id="form-content">
             <form action="">
                 <div class="form-group">
@@ -33,18 +47,17 @@
                 </div>
                 <div class="form-group">
                     <label for="pass">密码:</label>
-                    <input id="pass"class="form-control" type="password" v-model="first_pwd">
+                    <input id="pass" class="form-control" type="password" v-model="first_pwd">
                 </div>
                 <div class="form-group">
                     <label for="pass">确认密码:</label>
-                    <input id="pass"class="form-control" type="password" v-model="second_pwd">
+                    <input id="pass" class="form-control" type="password" v-model="second_pwd">
                 </div>
-                <div class="form-group" >
+                <div class="form-group">
                     <button type="button" class="btn btn-success btn-block" @click="regist">注册</button>
                 </div>
             </form>
         </section>
-
     </div>
 
     <script type="text/javascript">
@@ -53,17 +66,17 @@
             data: {
                 name: "",
                 first_pwd: "",
-                second_pwd:""
+                second_pwd: ""
             },
             methods: {
                 regist: function () {
                     if (this.name == "") {
                         alert("用户名不许为空")
                         return
-                    }else if (this.first_pwd == "") {
+                    } else if (this.first_pwd == "") {
                         alert("密码不许为空")
                         return
-                    }else if (this.second_pwd == "") {
+                    } else if (this.second_pwd == "") {
                         alert("请确认密码")
                         return
                     }
@@ -71,7 +84,8 @@
                         alert("两次密码需输入一致")
                         return
                     }
-                    this.$http.get('/regist?name=' + this.name + '&pwd=' + this.second_pwd).then(function (res) {
+                    this.$http.get('/regist?name=' + this.name + '&pwd=' + this.second_pwd).then(function (
+                        res) {
                         alert("注册成功，请登录...")
                         window.location.href = "/web/login.html"
                     }, function () {

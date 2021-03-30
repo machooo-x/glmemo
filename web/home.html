@@ -5,79 +5,25 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static\css\usual.css">
     <script src="static/jquery/js/jquery.min.js"></script>
     <script src="static/bootstrap/js/popper.min.js"></script>
     <script src="static/bootstrap/js/bootstrap.min.js"></script>
     <script src="static/vuejs/vue.min.js"></script>
     <script src="static/vuejs/vue-resource.min.js"></script>
     <title>美好生活备忘录</title>
-
     <style>
-        * {
-            margin: 0;
-        }
-
-        header {
-            background-color: #1a1818;
-            height: 60px;
-        }
-
-        .header-container {
-            width: 90%;
-            max-width: 980px;
-            margin: 0 auto;
-            height: 60px;
-        }
-
-        .logo-box {
+        section {
             height: 100%;
-            width: 60px;
-            position: relative;
-            float: left;
-        }
-
-        .logo-box>img {
-            height: 50px;
-            width: 50px;
-            position: absolute;
             top: 50%;
-            left: 50%;
-            margin-top: -25px;
             margin-left: -25px;
+            color: rgb(166, 173, 177);
         }
 
-        .menu-box {
-            float: right;
-            height: 100%;
-        }
-
-        .btn-box {
-            width: 40px;
-            height: 100%;
-            margin-left: 10px;
-            position: relative;
-            float: left;
-        }
-
-        .btn-box img {
-            width: 40px;
-            height: 40px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            margin-top: -20px;
-            margin-left: -20px;
-        }
-
-        .panel {
-            margin-top: 30px;
-        }
-
-        footer {
-            margin-top: 100px;
-            text-align: center;
-            font-size: 16px;
-            color: rgb(80, 82, 83);
+        p.sansserif {
+            font-family: Arial, Helvetica, sans-serif;
+            color: black;
+            font-size: medium;
         }
     </style>
 </head>
@@ -85,12 +31,11 @@
 <body>
     <div id="app">
         <header>
-
             <div class="header-container">
-
                 <div class="logo-box">
-                    <img src="./image/login.png" alt="logo">
+                    <a :href="'/web/home.html?uuid=' + this.uuid"><img src="./image/login.png" alt="logo"></a>
                 </div>
+                <h1 class="title-text">美好生活备忘录</h1>
                 <div class="menu-box">
                     <div class="btn-box">
                         <a :href="'/web/change.html?uuid=' + this.uuid"><img src="./image/add.png" title="添加备忘"> </a>
@@ -104,32 +49,62 @@
 
         <section>
             <div class="container">
-                <div class="row">
-                    <ul v-if="records!==null" class="list-grou">
-                        <li v-for="record in records" class="list-group-item">
-                            <div class="panel panel-default">
-                                <div class="panel-heading">
-                                    <a :href="'/web/info.html?uuid=' + record.uuid + '&recordid=' + record.id">
-                                        <h3 class="panel-title">{{record.title}}</h3>
-                                    </a>
-                                </div>
-                                <div class="panel-body" style="height: 30px;">
-                                    <div id="date" style="float: left;">
-                                        <p>{{record.date}}</p>
-                                    </div>
-                                </div>
-                                <div class="panel-body">
-                                    {{record.text}}
+                <ul v-if="records.length==0" class="list-grou">
+                    <h3>暂无任何记录</h3>
+                </ul>
+
+                <ul v-if="records!==null" class="list-grou">
+                    <li v-for="record in records" class="list-group-item">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <a :href="'/web/info.html?uuid=' + record.uuid + '&recordid=' + record.id">
+                                    <h3 class="panel-title">{{record.title}}</h3>
+                                </a>
+                            </div>
+                            <div class="panel-body" style="height: 30px;">
+                                <div id="date" style="float: left;">
+                                    <p>{{record.date}}</p>
                                 </div>
                             </div>
-                        </li>
-                    </ul>
-                </div>
+                            <div class="panel-body" style="font-style: inherit;">
+                                <p class="sansserif"> {{record.text}}</p>
+
+                                <!-- <div style="float: left;">
+                                    <a href="#">
+                                        <video height="300" width="400" controls>
+                                            <source src="./video/trailer.mp4" type="video/mp4">
+                                            您的浏览器不支持Video标签。
+                                        </video>
+                                    </a>
+                                </div>
+                                <div style="float: left;">
+                                    <a href="#">
+                                        <video height="300" width="400" controls>
+                                            <source src="./video/trailer.mp4" type="video/mp4">
+                                            您的浏览器不支持Video标签。
+                                        </video>
+                                    </a>
+                                </div>
+                                <div style="float: left;">
+                                    <a href="./image/thumb-1920-340437.jpg" target="_blank">
+                                        <img src="./image/thumb-1920-340437.jpg" height="300" width="400" alt="测试">
+                                    </a>
+                                </div>
+
+                                <div style="float: left;">
+                                    <a href="./image/thumb-1920-340437.jpg" target="_blank">
+                                        <img src="./image/thumb-1920-340437.jpg" height="300" width="400" alt="测试">
+                                    </a>
+                                </div> -->
+
+                            </div>
+                    </li>
+                </ul>
             </div>
         </section>
 
         <footer>
-            <p>machoo@qq.com</p>
+            <p>machooo@qq.com</p>
         </footer>
     </div>
     <script type="text/javascript">
