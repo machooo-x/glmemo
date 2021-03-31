@@ -68,7 +68,7 @@
                             <div class="row">
                                 <div class="col-sm-6">
                                     <div class="form-group">
-                                        <input type="file" name="file">
+                                        <input id="file" type="file" name="file">
                                         <p class="help-block">请先上传文件，后点击提交</p>
                                         <button type="button" class="btn btn-default" @click="upload">上传文件</button>
                                     </div>
@@ -77,9 +77,9 @@
                                     <iframe name="frame1" frameborder="0" height="99px" width="100%"
                                         scrolling="no"></iframe>
                                 </div>
-                                <div style="height: 0;width: 0;">
-                                    <input type="text" name="uuid" value=this.uuid /><br />
-                                </div>
+                                <!-- <div style="height: 0;width: 0;">
+                                    <input type="text" name="uuid" value=this.uuid />  <br>
+                                </div> -->
                             </div>
                         </form>
                     </div>
@@ -113,7 +113,7 @@
                 title: "",
                 text: "",
                 files: [],
-                filename: "",
+                filepath: "",
                 iscommit: 1, // 默认提交
                 isaddsave: 1, // 默认是新建时的暂存
             },
@@ -169,9 +169,14 @@
                         if (word != "") {
                             // alert(word); //弹窗提示是否上传成功
                             clearInterval(t); //清除定时器
-                            console.log(word); // ---------------在此处暂存标题及内容----------------- work
-                            this.filename = word.substring(8, word.length)
-                            console.log(this.filename);
+                            // console.log(word); // ---------------在此处暂存标题及内容----------------- work
+                            this.filepath = word
+                            this.filepath = this.filepath.substring(document.getElementById('file')
+                                .files[0].name.length + 8, filepath.length)
+                            console.log(this.filepath);
+                        } else {
+                            clearInterval(t); //清除定时器
+                            alert("请选择文件进行上传...");
                         }
                     }, 1000);
                 },

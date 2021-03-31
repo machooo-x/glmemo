@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -390,8 +391,12 @@ func delTempSave(c echo.Context) (err error) {
 func uploadfile(c echo.Context) (err error) {
 	defer func() {
 		if err != nil {
-			syslog.Clog.Errorln(true, err)
-			err = c.String(http.StatusBadRequest, "文件上传失败！请重新上传文件...")
+			if err.Error() == "http: no such file" {
+				err = c.String(http.StatusOK, "")
+			} else {
+				syslog.Clog.Errorln(true, err)
+				err = c.String(http.StatusOK, "文件上传失败！请重新上传文件...")
+			}
 		}
 	}()
 	syslog.Clog.Infoln(true, "uploadfile 请求")
@@ -420,12 +425,30 @@ func uploadfile(c echo.Context) (err error) {
 	// 创建目标文件，就是我们打算把用户上传的文件保存到什么地方
 	// file.Filename 参数指的是我们以用户上传的文件名，作为目标文件名，也就是服务端保存的文件名跟用户上传的文件名一样
 	syslog.Clog.Infoln(true, file.Filename)
-	dst, err := os.Create("data/" + uuid + "/" + file.Filename)
+
+	/* 创建上层文件夹 -------------------------------------------uuid的文件夹-------------------------------------------------- */
+
+	folderPath := fmt.Sprintf("./%s/%s/%s", "data", uuid, strconv.FormatInt(time.Now().Unix(), 10))
+	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
+		// 必须分成两步
+		// 先创建文件夹
+		err = os.MkdirAll(folderPath, 0777)
+		if err != nil {
+			return err
+		}
+		// 再修改权限
+		err = os.Chmod(folderPath, 0777)
+		if err != nil {
+			return err
+		}
+	}
+	filename := folderPath + "/" + file.Filename
+	dst, err := os.Create(filename)
 	if err != nil {
 		syslog.Clog.Traceln(true, "marker")
-
 		return err
 	}
+
 	defer dst.Close()
 
 	// 这里将用户上传的文件复制到服务端的目标文件
@@ -433,7 +456,7 @@ func uploadfile(c echo.Context) (err error) {
 		return err
 	}
 
-	return c.HTML(http.StatusOK, fmt.Sprintf("<p>文件上传成功: %s</p>", file.Filename))
+	return c.HTML(http.StatusOK, fmt.Sprintf("<p>文件上传成功: %s</p><iframe name=\"frame\" frameborder=\"0\" height=\"0\" width=\"0\"scrolling=\"no\">%s</iframe>", file.Filename, filename))
 }
 
 func getFilename(c echo.Context) error {
