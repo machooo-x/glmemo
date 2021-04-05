@@ -56,10 +56,14 @@
                     </div>
                     <div class="form-group">
                         <ul style="padding-left: 0;">
-                            <li v-for="f in files" style="list-style: none; margin: 0;">
+                            <li v-if="filename!=''" style="list-style: none; margin: 0;">
+                                <a class="btn btn-warning btn-xs" @click="rmfile">删除文件</a>
+                                <a :href="'http://localhost/'+filepath" target="_blank">{{filename}}</a>
+                            </li>
+                            <!-- <li v-for="f in files" style="list-style: none; margin: 0;">
                                 <a class="btn btn-warning btn-xs" @click="">删除文件</a>
                                 <a>{{f.name}}</a>
-                            </li>
+                            </li> -->
                         </ul>
                     </div>
                     <div class="form-group">
@@ -114,6 +118,7 @@
                 text: "",
                 files: [],
                 filepath: "",
+                filename: "",
                 iscommit: 1, // 默认提交
                 isaddsave: 1, // 默认是新建时的暂存
             },
@@ -133,10 +138,12 @@
                 console.log(this.recordid);
                 if (this.recordid === undefined) {
                     this.$http.get('/querytempsave?uuid=' + this.uuid).then(function (res) {
-                            this.title = res.body.title
-                            this.text = res.body.text
-                            this.recordid = res.body.id
-                            date = res.body.date
+                            this.title = res.body.title;
+                            this.text = res.body.text;
+                            this.filepath = res.body.filepath;
+                            this.filename = res.body.filename;
+                            this.recordid = res.body.id;
+                            date = res.body.date;
                             console.log(this.recordid);
                             if (date == "0") {
                                 this.recordid = this.generateRecordID()
@@ -148,8 +155,10 @@
                         });
                 } else {
                     this.$http.get('/showrecord?recordid=' + this.recordid).then(function (res) {
-                            this.title = res.body.title
-                            this.text = res.body.text
+                            this.title = res.body.title;
+                            this.text = res.body.text;
+                            this.filepath = res.body.filepath;
+                            this.filename = res.body.filename;
                         },
                         function (res) {
                             alert("获取该记录详细信息有误，请稍后重试")
@@ -160,9 +169,10 @@
                 // this.getfiles()
             },
             methods: {
+
                 upload: function () {
                     $("#form1").submit();
-                    var t = setInterval(function () {
+                    var t = setInterval(() => {
                         //获取iframe标签里body元素里的文字。即服务器响应过来的"上传成功"或"上传失败"
                         var word = $("iframe[name='frame1']").contents().find("body")
                             .text();
@@ -172,7 +182,12 @@
                             // console.log(word); // ---------------在此处暂存标题及内容----------------- work
                             this.filepath = word
                             this.filepath = this.filepath.substring(document.getElementById('file')
-                                .files[0].name.length + 8, filepath.length)
+                                .files[0].name.length + 8, this.filepath.length)
+
+                            this.filename = document.getElementById('file').files[0].name;
+                            console.log(this.filename);
+
+
                             console.log(this.filepath);
                         } else {
                             clearInterval(t); //清除定时器
@@ -180,12 +195,17 @@
                         }
                     }, 1000);
                 },
-
+                rmfile: function () {
+                    this.filepath = ""
+                    this.filename = ""
+                },
                 tempsave: function () {
                     this.iscommit = 0
+                    console.log(this.filepath);
                     this.addrecord()
                 },
                 addrecord: async function () {
+                    console.log(this.filepath);
                     await this.run()
                 },
                 run: function () {
@@ -194,15 +214,16 @@
                         .recordid +
                         '&iscommit=' + this.iscommit + '&isaddsave=' + this.isaddsave, {
                             title: this.title,
-                            text: this.text
+                            text: this.text,
+                            filepath: this.filepath,
                         }).then(function (res) {
                         alert("操作成功")
                         window.location.href = "/web/home.html?uuid=" + this.uuid
-                    }, function () {
-                        alert("操作失败...")
-                        window.location.href = '/web/change.html?uuid=' + this.uuid
+                    }, function (res) {
+                        alert("操作失败......\r\n"+res.body)
+                        
+                        // window.location.href = '/web/change.html?uuid=' + this.uuid
                     })
-                    return
                 },
                 generateRecordID: function () {
                     var d = new Date().getTime();

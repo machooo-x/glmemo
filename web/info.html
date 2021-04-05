@@ -37,21 +37,30 @@
         </header>
 
         <section class="container">
-            <div v-if="record!==null">
+            <div v-if="record!==null" style="height: auto;">
                 <div class="jumbotron">
                     <a :href="'/web/info.html?uuid=' + record.uuid + '&recordid=' + record.id">
                         <h1 class="panel-title">{{record.title}}</h1>
                     </a>
                     <p>{{record.date}}</p>
                     <p>{{record.text}}</p>
+                    <video v-if="record.filetype=='mp4'" height="300" width="400" controls>
+                        <source :src="'http://localhost/'+record.filepath" type="video/mp4">
+                        您的浏览器不支持Video标签。
+                    </video>
+                    <a v-if="record.filetype=='img'" :href="'http://localhost/'+record.filepath" target="_blank">
+                        <img :src="'http://localhost/'+record.filepath" height="300" width="400" alt="测试">
+                    </a>
                 </div>
 
             </div>
             <a :href="'/web/change.html?uuid=' + record.uuid + '&recordid=' + record.id"><button
                     class="btn btn-primary">修改</button></a>
-            <a><button class="btn btn-warning" data-toggle="modal" data-target="#myModal">删除</button></a>
-            <!-- Modal -->
-            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <a><button class="btn btn-warning" data-toggle="modal" data-target="#ackDelModal">删除</button></a>
+            <a><button class="btn btn-info" data-toggle="modal" data-target="#sharerecordModal">分享</button></a>
+
+            <!-- ackDelModal -->
+            <div class="modal fade" id="ackDelModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -69,6 +78,47 @@
                     </div>
                 </div>
             </div>
+            <!-- sharerecordModal -->
+            <div class="modal fade" id="sharerecordModal" tabindex="-1" role="dialog" aria-labelledby="shareModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <p class="modal-title" id="shareModalLabel" style="color: red;">提示</p>
+                        </div>
+                        <div class="modal-body">
+                            <p> 点击确认后，将会生成一个链接地址，陌生人也可通过此链接查看您该条文案信息!</p>
+                            <p>（切记谨慎操作）</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                @click="sharerecord" data-toggle="modal" data-target="#showsharerecordURLModal">确认</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- showsharerecordURLModal -->
+            <div class="modal fade" id="showsharerecordURLModal" tabindex="-1" role="dialog"
+                aria-labelledby="showshareModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <p class="modal-title" id="showshareModalLabel" style="color: red;">提示</p>
+                        </div>
+                        <div class="modal-body">
+                            <p> 此链接地址24小时候失效，请妥善保存!</p>
+                            <div v-if="tempurl!=''">{{tempurl}}</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">确认</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
         <footer>
             <p>machooo@qq.com</p>
@@ -81,6 +131,7 @@
                 uuid: "",
                 recordid: "",
                 record: null,
+                tempurl: "",
             },
 
             mounted: function () {
@@ -101,7 +152,8 @@
             },
             methods: {
                 init: function () {
-                    this.$http.get('/showrecord?recordid=' + this.recordid+'&info=1').then(function (res) {
+                    this.$http.get('/showrecord?recordid=' + this.recordid + '&info=1').then(function (
+                            res) {
                             this.record = res.body
                         },
                         function (res) {
@@ -115,6 +167,16 @@
                         function (res) {
                             alert("删除记录有误，请稍后重试")
                         });
+                },
+                sharerecord: function () {
+                    this.$http.get('/createtemprecord?recordid=' + this.recordid)
+                        .then(function (res) {
+                                this.tempurl = res.body
+                                console.log(this.tempurl)
+                            },
+                            function (res) {
+                                alert("生成分享链接有误，请稍后重试")
+                            });
                 },
             },
         });

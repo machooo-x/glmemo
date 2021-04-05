@@ -38,7 +38,6 @@ func init() {
 
 	/*
 		create record
-		filename 最多支持两个文件，文件名用逗号隔开
 	*/
 	sqlStmt = `
 	create table if not exists record (
@@ -47,7 +46,7 @@ func init() {
 		update_time char(10) not null,
 		title varchar(20) not null,
 		text varchar(1024) not null,
-		filename varchar(200),
+		filepath varchar(200),
 		size int UNSIGNED not null,
 		PRIMARY KEY (id),
 		constraint foreign key(user_id) references user(uuid));`
@@ -58,7 +57,6 @@ func init() {
 
 	/*
 		create temprecord
-		filename 最多支持两个文件，文件名用逗号隔开
 	*/
 	sqlStmt = `
 	create table if not exists temp_record (
@@ -67,7 +65,7 @@ func init() {
 		update_time char(10) not null,
 		title varchar(20) not null,
 		text varchar(1024) not null,
-		filename varchar(200),
+		filepath varchar(200),
 		size int UNSIGNED not null,
 		is_add_save bool not null,
 		PRIMARY KEY (record_id),

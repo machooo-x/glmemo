@@ -48,28 +48,56 @@
         </header>
 
         <section>
-            <div class="container">
-                <ul v-if="records.length==0" class="list-grou">
-                    <h3>暂无任何记录</h3>
-                </ul>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div style="float: right; ">
+                            <ul class="list-group" style="color: yellow;">
+                                <li class="list-group-item"><a href="#" style="text-align: center;">生活</a> </li>
+                                <li class="list-group-item"><a href="#">学习</a> </li>
+                                <li class="list-group-item"><a href="#">工作</a> </li>
+                                <li class="list-group-item"><a href="#">娱乐</a> </li>
+                                <li class="list-group-item"><a href="#">活动</a> </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
 
-                <ul v-if="records!==null" class="list-grou">
-                    <li v-for="record in records" class="list-group-item">
-                        <div class="panel panel-default">
-                            <div class="panel-heading">
-                                <a :href="'/web/info.html?uuid=' + record.uuid + '&recordid=' + record.id">
-                                    <h3 class="panel-title">{{record.title}}</h3>
-                                </a>
-                            </div>
-                            <div class="panel-body" style="height: 30px;">
-                                <div id="date" style="float: left;">
-                                    <p>{{record.date}}</p>
-                                </div>
-                            </div>
-                            <div class="panel-body" style="font-style: inherit;">
-                                <p class="sansserif"> {{record.text}}</p>
+                        <ul v-if="records.length==0" class="list-grou">
+                            <h3>暂无任何记录</h3>
+                        </ul>
 
-                                <!-- <div style="float: left;">
+                        <ul v-if="records!==null" class="list-grou">
+                            <li v-for="record in records" class="list-group-item">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <a :href="'/web/info.html?uuid=' + record.uuid + '&recordid=' + record.id">
+                                            <h3 class="panel-title">{{record.title}}</h3>
+                                        </a>
+                                    </div>
+                                    <div class="panel-body" style="height: 30px;">
+                                        <div id="date" style="float: left;">
+                                            <p>{{record.date}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body" style="font-style: inherit;">
+                                        <p class="sansserif"> {{record.text}}</p>
+
+                                        <div style="float: left;">
+                                            <video v-if="record.filetype=='mp4'" height="300" width="400" controls>
+                                                <source :src="'http://localhost/'+record.filepath" type="video/mp4">
+                                                您的浏览器不支持Video标签。
+                                            </video>
+                                        </div>
+                                        <div style="float: left;">
+                                            <a v-if="record.filetype=='img'" :href="'http://localhost/'+record.filepath"
+                                                target="_blank">
+                                                <img :src="'http://localhost/'+record.filepath" height="300" width="400"
+                                                    alt="测试">
+                                            </a>
+                                        </div>
+
+                                        <!-- <div style="float: left;">
                                     <a href="#">
                                         <video height="300" width="400" controls>
                                             <source src="./video/trailer.mp4" type="video/mp4">
@@ -97,9 +125,14 @@
                                     </a>
                                 </div> -->
 
-                            </div>
-                    </li>
-                </ul>
+                                    </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-md-2">
+                    </div>
+                </div>
             </div>
         </section>
 

@@ -1,25 +1,52 @@
 <html>
-    <head>
-        <title>500 Internal Privoxy Error</title>
-        <link rel="shortcut icon" href="http://config.privoxy.org/error-favicon.ico" type="image/x-icon">
-    </head>
-    <body>
-        <h1>500 Internal Privoxy Error</h1>
-        <p>Privoxy encountered an error while processing your request:</p>
-        <p>
-            <b>Could not load template file 
-                <code>no-server-data</code> or one of its included components.
-            </b>
-        </p>
-        <p>Please contact your proxy administrator.</p>
-        <p>If you are the proxy administrator, please put the required file(s)in the 
-            <code>
-                <i>(confdir)</i>/templates
-            </code> directory.  The location of the
-            <code>
-                <i>(confdir)</i>
-            </code> directory is specified in the main Privoxy
-            <code>config</code> file.  (It's typically the Privoxy install directory).
-        </p>
-    </body>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>美好生活备忘录</title>
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static\css\usual.css">
+    <script src="static/jquery/js/jquery.min.js"></script>
+    <script src="static/bootstrap/js/popper.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="static/vuejs/vue.min.js"></script>
+    <script src="static/vuejs/vue-resource.min.js"></script>
+
+</head>
+
+<body>
+
+    <div style="padding:5px ;position:relative" class="col-sm-4">
+        <span style="position:absolute;top:5px;overflow:hidden;width:95%;height:32px;">
+            <!--这个是个多选框，用onchange事件的时候 ，将这个select的id传进去-->
+            <select name="trains" οnchange="qlcTrainS('qlc_zdz1')" class="form-control" id="qlc_zdz1"
+                style="height:30px;outline:0;">
+                <option value="test1">test1</option>
+                <option value="test2">test2</option>
+                <option value="test3">test3</option>
+                <option value="test4">test4</option>
+                <option value="test5">test5</option>
+            </select>
+
+        </span>
+        <span
+            style="position:absolute;top:7px;left:10px;margin-top:1px;margin-left:1px;width:80%;height:28px;border-radius:5px;">
+            <!--这里是input框，定位到select的上面-->
+            <input type="text" name="ccdd" id="qlc_zdz" class="ccdd" placeholder="可选择也可输入的下拉框"
+                style="width:80%;height:24px;border:0pt;border-radius:5px;outline:0">
+        </span>
+    </div>
+    <script type="text/javascript">
+        function qlcTrainS(idName) {
+            var
+                arrValue =
+                document.getElementById(idName).options[document.getElementById(idName).selectedIndex].value;
+            $("#" +
+                idName +
+                "").parent('span').next('span').children('input.ccdd').val(arrValue)
+        }
+    </script>
+
+</body>
+
 </html>

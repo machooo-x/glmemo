@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>美好生活备忘录</title>
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static\css\usual.css">
+    <script src="static/jquery/js/jquery.min.js"></script>
+    <script src="static/bootstrap/js/popper.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="static/vuejs/vue.min.js"></script>
+    <script src="static/vuejs/vue-resource.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <div class="header-container">
+                <div class="logo-box">
+                    <a href="#"><img src="./image/login.png" alt="logo"></a>
+                </div>
+                <h1 class="title-text">美好生活备忘录</h1>
+            </div>
+        </header>
+        <section class="container">
+            <div v-if="record!==null" style="height: auto;">
+                <div v-if="record.id!==''" class="jumbotron">
+                    <h1 class="panel-title">{{record.title}}</h1>
+                    <p>{{record.date}}</p>
+                    <p>{{record.text}}</p>
+                    <video v-if="record.filetype=='mp4'" height="300" width="400" controls>
+                        <source :src="'http://localhost/'+record.filepath" type="video/mp4">
+                        您的浏览器不支持Video标签。
+                    </video>
+                    <a v-if="record.filetype=='img'" :href="'http://localhost/'+record.filepath" target="_blank">
+                        <img :src="'http://localhost/'+record.filepath" height="300" width="400" alt="测试">
+                    </a>
+                </div>
+                <div v-if="record.id==''">
+                    <h1>该链接已失效！</h1>
+                </div>
+            </div>
+        </section>
+        <footer>
+            <p>machooo@qq.com</p>
+        </footer>
+    </div>
+    <script type="text/javascript">
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                token: "",
+                record: null,
+            },
+            mounted: function () {
+                var url = location.search; //获取url中"?"符后的字串
+                var theRequest = new Object();
+                if (url.indexOf("?") != -1) {
+                    var str = url.substr(1);
+                    strs = str.split("&");
+                    for (var i = 0; i < strs.length; i++) {
+                        theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                    }
+                }
+                this.token = theRequest.token
+                console.log(this.token);
+                this.init()
+            },
+            methods: {
+                init: function () {
+                    this.$http.get('/gettemprecord?token=' + this.token).then(function (
+                            res) {
+                            this.record = res.body
+                        },
+                        function (res) {
+                            alert("获取分享的信息有误，请稍后重试")
+                        });
+                },
+            },
+        });
+    </script>
+</body>
+
+</html>

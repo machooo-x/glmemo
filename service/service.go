@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"glmemo/config"
 	"glmemo/helper/database"
 	"glmemo/helper/syslog"
 	"glmemo/model"
@@ -12,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/garyburd/redigo/redis"
 	"github.com/google/uuid"
 
 	"github.com/labstack/echo"
@@ -88,7 +90,7 @@ func getRecordList(c echo.Context) (err error) {
 		return c.String(http.StatusUnauthorized, "用户uuid不许为空")
 	}
 	records := make([]*model.Record, 0)
-	stmt, err := database.Mysql.Prepare("select id,user_id,title,text,update_time from record where user_id = ? order by `update_time` desc")
+	stmt, err := database.Mysql.Prepare("select id,user_id,title,text,filepath,update_time from record where user_id = ? order by `update_time` desc")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
@@ -103,12 +105,20 @@ func getRecordList(c echo.Context) (err error) {
 	var dataTemp int64
 	for result.Next() {
 		record := &model.Record{}
-		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &dataTemp)
+		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &record.FilePath, &dataTemp)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			return err
 		}
 		record.Date = time.Unix(dataTemp, 0).Format("2006-01-02 15:04:05")
+		if record.FilePath != "" {
+			if !strings.Contains(record.FilePath, "mp4") {
+				record.FileType = "img"
+			} else {
+				record.FileType = "mp4"
+			}
+		}
+
 		records = append(records, record)
 	}
 	return c.JSON(http.StatusOK, records)
@@ -124,7 +134,8 @@ func showRecord(c echo.Context) (err error) {
 
 	info := c.QueryParam("info")
 	if info == "" {
-		stmt, err := database.Mysql.Prepare("select record_id,user_id,title,text,update_time from temp_record where record_id = ?")
+		stmt, err := database.Mysql.Prepare("select record_id,user_id,title,text,filepath,update_time from temp_record where record_id = ?")
+		syslog.Clog.Infoln(true, "mark query temp")
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			return err
@@ -137,16 +148,28 @@ func showRecord(c echo.Context) (err error) {
 			return err
 		}
 		if result.Next() {
-			err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &dataTemp)
+			err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &record.FilePath, &dataTemp)
 			if err != nil {
 				syslog.Clog.Errorln(true, err)
 				return err
 			}
 			record.Date = time.Unix(dataTemp, 0).Format("2006-01-02 15:04:05")
+			if record.FilePath != "" {
+				if !strings.Contains(record.FilePath, "mp4") {
+					record.FileType = "img"
+				} else {
+					record.FileType = "mp4"
+				}
+			}
+			idx := strings.LastIndex(record.FilePath, "/")
+			if idx != -1 {
+				record.FileName = record.FilePath[idx+1:]
+				syslog.Clog.Infoln(true, record.FileName)
+			}
 			return c.JSON(http.StatusOK, record)
 		}
 	}
-	stmt, err := database.Mysql.Prepare("select id,user_id,title,text,update_time from record where id = ?")
+	stmt, err := database.Mysql.Prepare("select id,user_id,title,text,filepath,update_time from record where id = ?")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
@@ -159,12 +182,23 @@ func showRecord(c echo.Context) (err error) {
 		return err
 	}
 	if result.Next() {
-		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &dataTemp)
+		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &record.FilePath, &dataTemp)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			return err
 		}
 		record.Date = time.Unix(dataTemp, 0).Format("2006-01-02 15:04:05")
+		if record.FilePath != "" {
+			if !strings.Contains(record.FilePath, "mp4") {
+				record.FileType = "img"
+			} else {
+				record.FileType = "mp4"
+			}
+		}
+	}
+	idx := strings.LastIndex(record.FilePath, "/")
+	if idx != -1 {
+		record.FileName = record.FilePath[idx+1:]
 	}
 	return c.JSON(http.StatusOK, record)
 }
@@ -175,7 +209,7 @@ func queryTempSave(c echo.Context) (err error) {
 		return c.String(http.StatusUnauthorized, "记录的id不许为空")
 	}
 	record := &model.Record{}
-	stmt, err := database.Mysql.Prepare("select record_id,user_id,title,text,update_time from temp_record where user_id = ? and is_add_save = ?")
+	stmt, err := database.Mysql.Prepare("select record_id,user_id,title,text,filepath,update_time from temp_record where user_id = ? and is_add_save = ?")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
@@ -189,7 +223,7 @@ func queryTempSave(c echo.Context) (err error) {
 	}
 	var dataTemp int64
 	if result.Next() {
-		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &dataTemp)
+		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &record.FilePath, &dataTemp)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			return err
@@ -198,24 +232,32 @@ func queryTempSave(c echo.Context) (err error) {
 	} else {
 		record.Date = "0"
 	}
+	idx := strings.LastIndex(record.FilePath, "/")
+	if idx != -1 {
+		record.FileName = record.FilePath[idx+1:]
+		syslog.Clog.Infoln(true, record.FileName)
+	}
 	return c.JSON(http.StatusOK, record)
 }
 func addRecord(c echo.Context) (err error) {
 	userID := c.QueryParam("uuid")
 	if userID == "" {
-		return c.String(http.StatusBadRequest, "用户uuid不许为空")
+		syslog.Clog.Errorln(true, "userID==\"\"")
+		return c.String(http.StatusBadRequest, "操作失败，请重新登陆")
 	}
 	recordID := c.QueryParam("recordid")
 	if recordID == "" {
-		return c.String(http.StatusBadRequest, "recordid为空")
+		syslog.Clog.Errorln(true, "recordid==\"\"")
+		return c.String(http.StatusBadRequest, "操作失败，请重新登陆")
 	}
 	syslog.Clog.Infoln(true, userID, recordID)
 	isCommit := c.QueryParam("iscommit")
 	isAddSave := c.QueryParam("isaddsave")
 
 	type req struct {
-		Title string `json:"title"`
-		Text  string `json:"text"`
+		Title    string `json:"title"`
+		Text     string `json:"text"`
+		FilePath string `json:"filepath"`
 	}
 	reqData := &req{}
 	err = c.Bind(&reqData)
@@ -224,8 +266,11 @@ func addRecord(c echo.Context) (err error) {
 		return err
 	}
 	syslog.Clog.Infoln(true, reqData)
+	if reqData.Title == "" {
+		return c.String(http.StatusBadRequest, "不许为空")
+	}
 	if reqData.Text == "" {
-		return c.String(http.StatusBadRequest, "text不许为空")
+		return c.String(http.StatusBadRequest, "内容不许为空")
 	}
 	tx, err := database.Mysql.Begin()
 	defer func(recordID string, isCommit string) {
@@ -261,19 +306,22 @@ func addRecord(c echo.Context) (err error) {
 
 	var str string
 	if isCommit == "1" {
-		str = "insert into record(id,user_id,update_time,title,text,size) values(?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id = ?, user_id = ?, update_time = ?, title = ?, text = ?, size = ?"
+		str = "insert into record(id,user_id,update_time,title,text,filepath,size) values(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id = ?, user_id = ?, update_time = ?, title = ?, text = ?, filepath = ?,size = ?"
 	} else if isCommit == "0" {
-		str = "INSERT INTO temp_record(record_id,user_id,update_time,title,text,size,is_add_save) VALUE(?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE record_id=?,user_id = ?,update_time= ?,title=?,text=?,size=?,is_add_save=?"
+		str = "INSERT INTO temp_record(record_id,user_id,update_time,title,text,filepath,size,is_add_save) VALUE(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE record_id=?,user_id = ?,update_time= ?,title=?,text=?,filepath = ?,size=?,is_add_save=?"
 		stmt, err := tx.Prepare(str)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			return err
 		}
 		defer stmt.Close()
-		_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, len(reqData.Text), isAddSave, recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, len(reqData.Text), isAddSave)
+		_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.FilePath, len(reqData.Text), isAddSave, recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.FilePath, len(reqData.Text), isAddSave)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
-			return err
+			if err.Error() == "Error 1406: Data too long for column 'title' at row 1" {
+				return c.String(http.StatusBadRequest, "标题过长...")
+			}
+			return c.String(http.StatusBadRequest, "")
 		}
 		return nil
 	}
@@ -284,11 +332,12 @@ func addRecord(c echo.Context) (err error) {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, len(reqData.Text), recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, len(reqData.Text))
+	_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.FilePath, len(reqData.Text), recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.FilePath, len(reqData.Text))
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
 	}
+	syslog.Clog.Infoln(true, reqData)
 
 	return nil
 }
@@ -401,34 +450,26 @@ func uploadfile(c echo.Context) (err error) {
 	}()
 	syslog.Clog.Infoln(true, "uploadfile 请求")
 
-	uuid := strings.Split(c.Request().Referer(), "=")[1]
+	uuid := strings.Split(c.Request().Referer(), "=")[1][:36]
 	syslog.Clog.Infoln(true, uuid)
 
 	// 通过FormFile函数获取客户端上传的文件
 	file, err := c.FormFile("file")
 	if err != nil {
-		syslog.Clog.Traceln(true, "marker")
 		return err
 	}
-	syslog.Clog.Infoln(true, "uploadfile 请求")
-
 	//打开用户上传的文件
 	src, err := file.Open()
 	if err != nil {
-		syslog.Clog.Traceln(true, "marker")
-
 		return err
 	}
 	defer src.Close()
-	syslog.Clog.Infoln(true, "uploadfile 请求")
-
 	// 创建目标文件，就是我们打算把用户上传的文件保存到什么地方
 	// file.Filename 参数指的是我们以用户上传的文件名，作为目标文件名，也就是服务端保存的文件名跟用户上传的文件名一样
 	syslog.Clog.Infoln(true, file.Filename)
-
 	/* 创建上层文件夹 -------------------------------------------uuid的文件夹-------------------------------------------------- */
 
-	folderPath := fmt.Sprintf("./%s/%s/%s", "data", uuid, strconv.FormatInt(time.Now().Unix(), 10))
+	folderPath := fmt.Sprintf("%s/%s/%s", "data", uuid, strconv.FormatInt(time.Now().Unix(), 10))
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
 		// 必须分成两步
 		// 先创建文件夹
@@ -445,17 +486,13 @@ func uploadfile(c echo.Context) (err error) {
 	filename := folderPath + "/" + file.Filename
 	dst, err := os.Create(filename)
 	if err != nil {
-		syslog.Clog.Traceln(true, "marker")
 		return err
 	}
-
 	defer dst.Close()
-
 	// 这里将用户上传的文件复制到服务端的目标文件
 	if _, err = io.Copy(dst, src); err != nil {
 		return err
 	}
-
 	return c.HTML(http.StatusOK, fmt.Sprintf("<p>文件上传成功: %s</p><iframe name=\"frame\" frameborder=\"0\" height=\"0\" width=\"0\"scrolling=\"no\">%s</iframe>", file.Filename, filename))
 }
 
@@ -469,4 +506,69 @@ func getFilename(c echo.Context) error {
 	resp = append(resp, &file{
 		Name: "file222"})
 	return c.JSON(http.StatusOK, &resp)
+}
+
+// 此分享链接一日有效
+func createTempRecord(c echo.Context) (err error) {
+	recordid := c.QueryParam("recordid")
+	if recordid == "" {
+		return c.String(http.StatusUnauthorized, "recordid为空")
+	}
+	syslog.Clog.Traceln(true, recordid)
+	key := uuid.New().String()
+	r := database.RedisPool.Get()
+	r.Do("set", key, recordid, "EX", 24*3600)
+	tempURL := fmt.Sprintf("http://%s/web/sharerecord.html?token=%s", config.GLMEMO.Section("netIP").Key("IP").String(), key)
+	return c.String(http.StatusOK, tempURL)
+}
+
+func getTempRecord(c echo.Context) error {
+	token := c.QueryParam("token")
+	syslog.Clog.Traceln(true, token)
+	record := &model.Record{}
+	var dataTemp int64
+	r := database.RedisPool.Get()
+	recordID, err := redis.String(r.Do("GET", token))
+	if err != nil {
+		if err.Error() == "redigo: nil returned" {
+			return c.JSON(http.StatusOK, record)
+		}
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	syslog.Clog.Traceln(true, recordID)
+
+	stmt, err := database.Mysql.Prepare("select id,user_id,title,text,filepath,update_time from record where id = ?")
+	if err != nil {
+
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	result, err := stmt.Query(recordID)
+	defer result.Close()
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	if result.Next() {
+		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &record.FilePath, &dataTemp)
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		record.Date = time.Unix(dataTemp, 0).Format("2006-01-02 15:04:05")
+		if record.FilePath != "" {
+			if !strings.Contains(record.FilePath, "mp4") {
+				record.FileType = "img"
+			} else {
+				record.FileType = "mp4"
+			}
+		}
+	}
+	idx := strings.LastIndex(record.FilePath, "/")
+	if idx != -1 {
+		record.FileName = record.FilePath[idx+1:]
+	}
+	return c.JSON(http.StatusOK, record)
 }
