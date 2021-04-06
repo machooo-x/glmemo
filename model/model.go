@@ -1,13 +1,13 @@
 package model
 
-const (
-	// UserMaxStoreSizeNormal 普通用户最大存储空间
-	UserMaxStoreSizeNormal = 1073741824
-	// UserMaxStoreSizeVip vip用户最大存储空间
-	UserMaxStoreSizeVip = UserMaxStoreSizeNormal * 5
-	// InitializeStoreSize 初始化大小
-	InitializeStoreSize = 0
-)
+// const (
+// 	// UserMaxStoreSizeNormal 普通用户最大存储空间
+// 	UserMaxStoreSizeNormal = 1073741824
+// 	// UserMaxStoreSizeVip vip用户最大存储空间
+// 	UserMaxStoreSizeVip = UserMaxStoreSizeNormal * 5
+// 	// InitializeStoreSize 初始化大小
+// 	InitializeStoreSize = 0
+// )
 
 // User ...
 type User struct {

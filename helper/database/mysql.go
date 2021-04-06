@@ -66,7 +66,6 @@ func init() {
 		tag_name varchar(10) not null,
 		filename varchar(150),
 		filepath varchar(200),
-		size int UNSIGNED not null,
 		PRIMARY KEY (id),
 		constraint foreign key(user_id) references user(uuid),
 		constraint foreign key(user_id,tag_name) references tag(user_id,tag_name));`
@@ -87,7 +86,6 @@ func init() {
 		text varchar(1024) not null,
 		tag_name varchar(10) not null,
 		filepath varchar(200),
-		size int UNSIGNED not null,
 		is_add_save bool not null,
 		PRIMARY KEY (record_id),
 		constraint foreign key(user_id) references user(uuid));`
@@ -97,18 +95,18 @@ func init() {
 	}
 
 	/* create vip */
-	sqlStmt = `
-			create table if not exists vip (
-				user_id char(36) not null,
-				starttime char(10) not null,
-				endtime char(10) not null,
-				used int not null,
-				status bool not null,
-				PRIMARY KEY (user_id),
-				constraint foreign key(user_id) references user(uuid));`
-	_, err = Mysql.Exec(sqlStmt)
-	if err != nil {
-		panic(err)
-	}
+	// sqlStmt = `
+	// 		create table if not exists vip (
+	// 			user_id char(36) not null,
+	// 			starttime char(10) not null,
+	// 			endtime char(10) not null,
+	// 			used int not null,
+	// 			status bool not null,
+	// 			PRIMARY KEY (user_id),
+	// 			constraint foreign key(user_id) references user(uuid));`
+	// _, err = Mysql.Exec(sqlStmt)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 }

@@ -1,4 +1,4 @@
 ./go.sum
 ./maximo*
-./maximo.log
-./data
+./data/
+maximo.log
