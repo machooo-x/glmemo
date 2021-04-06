@@ -31,11 +31,11 @@
                     <p>{{record.date}}</p>
                     <p>{{record.text}}</p>
                     <video v-if="record.filetype=='mp4'" height="300" width="400" controls>
-                        <source :src="'http://localhost/'+record.filepath" type="video/mp4">
+                        <source :src="'http://'+netip+'/'+record.filepath" type="video/mp4">
                         您的浏览器不支持Video标签。
                     </video>
-                    <a v-if="record.filetype=='img'" :href="'http://localhost/'+record.filepath" target="_blank">
-                        <img :src="'http://localhost/'+record.filepath" height="300" width="400" alt="测试">
+                    <a v-if="record.filetype=='img'" :href="'http://'+netip+'/'+record.filepath" target="_blank">
+                        <img :src="'http://'+netip+'/'+record.filepath" height="300" width="400" alt="测试">
                     </a>
                 </div>
                 <div v-if="record.id==''">
@@ -53,6 +53,7 @@
             data: {
                 token: "",
                 record: null,
+                netip: "",
             },
             mounted: function () {
                 var url = location.search; //获取url中"?"符后的字串
@@ -76,6 +77,15 @@
                         },
                         function (res) {
                             alert("获取分享的信息有误，请稍后重试")
+                        });
+                    this.getnetip()
+                },
+                getnetip: function () {
+                    this.$http.get('/getnetip').then(function (res) {
+                            this.netip = res.body;
+                        },
+                        function (res) {
+                            alert("获取服务器地址有误，请稍后重试")
                         });
                 },
             },

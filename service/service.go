@@ -75,23 +75,43 @@ func regist(c echo.Context) (err error) {
 		return err
 	}
 	if result.Next() {
+		// 该用户已存在
 		return c.String(http.StatusOK, "repeat name")
 	}
+	uuid := uuid.New().String()
 
 	tx, err := database.Mysql.Begin()
-	defer func() {
+	defer func(uuid string) {
 		if tx.Commit() != nil {
 			syslog.Clog.Errorln(true, err)
 			tx.Rollback()
+		} else {
+			tx, err = database.Mysql.Begin()
+			defer func() {
+				if tx.Commit() != nil {
+					syslog.Clog.Errorln(true, err)
+					tx.Rollback()
+				}
+			}()
+			stmt, err = tx.Prepare(`insert into tag(user_id,tag_name) values(?,"我的收藏"),(?,"其它"),(?,"生活"),(?,"学习"),(?,"工作"),(?,"日常"),(?,"随笔"),(?,"家人"),(?,"朋友"),(?,"同学"),(?,"同事"),(?,"娱乐"),(?,"游戏"),(?,"网友"),(?,"书本"),(?,"电影"),(?,"电视剧")`)
+			if err != nil {
+				syslog.Clog.Errorln(true, err)
+				return
+			}
+			defer stmt.Close()
+			_, err = stmt.Exec(uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid)
+			if err != nil {
+				syslog.Clog.Errorln(true, err)
+				return
+			}
 		}
-	}()
+	}(uuid)
 	stmt, err = tx.Prepare("insert into user values(?,?,?,?)")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
 	}
 	defer stmt.Close()
-	uuid := uuid.New().String()
 	_, err = stmt.Exec(uuid, time.Now().Unix(), name, pwd)
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
@@ -291,7 +311,7 @@ func addRecord(c echo.Context) (err error) {
 		return c.String(http.StatusBadRequest, "内容不许为空")
 	}
 	tx, err := database.Mysql.Begin()
-	defer func(recordID string, isCommit string, tagName string) {
+	defer func(userID, recordID string, isCommit string, tagName string) {
 		if tx.Commit() != nil {
 			syslog.Clog.Errorln(true, err)
 			tx.Rollback()
@@ -305,13 +325,13 @@ func addRecord(c echo.Context) (err error) {
 					}
 				}()
 
-				stmt, err := tx.Prepare("UPDATE tag SET sum = sum+1 WHERE tag_name = ?")
+				stmt, err := tx.Prepare("UPDATE tag SET sum = sum+1 WHERE user_id = ? and tag_name = ?")
 				if err != nil {
 					syslog.Clog.Errorln(true, err)
 					// return
 				}
 				defer stmt.Close()
-				_, err = stmt.Exec(tagName)
+				_, err = stmt.Exec(userID, tagName)
 				if err != nil {
 					syslog.Clog.Errorln(true, err)
 					// return
@@ -331,7 +351,7 @@ func addRecord(c echo.Context) (err error) {
 				return
 			}
 		}
-	}(recordID, isCommit, reqData.TagName)
+	}(userID, recordID, isCommit, reqData.TagName)
 
 	// INSERT INTO record(id,user_id,update_time,title,text,tag_name,size) VALUE("undefined","060d55a9-f611-4c82-b6b4-994006c9c9e6",1616975733,"2","2",2) ON DUPLICATE KEY UPDATE id="undefined",title="0",text="0",size=5;
 
@@ -339,14 +359,14 @@ func addRecord(c echo.Context) (err error) {
 	if isCommit == "1" {
 		str = "insert into record(id,user_id,update_time,title,text,tag_name,filename,filepath,size) values(?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id = ?, user_id = ?, update_time = ?, title = ?, text = ?, tag_name = ?,filename = ?, filepath = ?,size = ?"
 	} else if isCommit == "0" {
-		str = "INSERT INTO temp_record(record_id,user_id,update_time,title,text,tag_name,filename,filepath,size,is_add_save) VALUE(?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE record_id=?,user_id = ?,update_time = ?, title = ?, text= ?, tag_name = ?,filename = ?, filepath = ?, size = ?, is_add_save = ?"
+		str = "INSERT INTO temp_record(record_id,user_id,update_time,title,text,tag_name,filepath,size,is_add_save) VALUE(?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE record_id=?,user_id = ?,update_time = ?, title = ?, text= ?, tag_name = ?, filepath = ?, size = ?, is_add_save = ?"
 		stmt, err := tx.Prepare(str)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			return err
 		}
 		defer stmt.Close()
-		_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FileName, reqData.FilePath, len(reqData.Text), isAddSave, recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FileName, reqData.FilePath, len(reqData.Text), isAddSave)
+		_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FilePath, len(reqData.Text), isAddSave, recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FilePath, len(reqData.Text), isAddSave)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			if err.Error() == "Error 1406: Data too long for column 'title' at row 1" {
@@ -416,17 +436,44 @@ func addRecord(c echo.Context) (err error) {
 // }
 
 func delRecord(c echo.Context) (err error) {
+	userID := c.QueryParam("uuid")
+	if userID == "" {
+		return c.String(http.StatusUnauthorized, "用户uuid不许为空")
+	}
 	recordid := c.QueryParam("recordid")
 	if recordid == "" {
 		return c.String(http.StatusUnauthorized, "删除的记录id不许为空")
 	}
+	tagName := c.QueryParam("tagname")
+	if recordid == "" {
+		return c.String(http.StatusUnauthorized, "标签名称不许为空")
+	}
 	tx, err := database.Mysql.Begin()
-	defer func() {
+	defer func(userID, tagName string) {
 		if tx.Commit() != nil {
 			syslog.Clog.Errorln(true, err)
 			tx.Rollback()
+		} else {
+			tx, err = database.Mysql.Begin()
+			defer func() {
+				if tx.Commit() != nil {
+					syslog.Clog.Errorln(true, err)
+					tx.Rollback()
+				}
+			}()
+			stmt, err := tx.Prepare("UPDATE tag SET sum = sum-1 WHERE user_id = ? and tag_name = ?")
+			if err != nil {
+				syslog.Clog.Errorln(true, err)
+				return
+			}
+			defer stmt.Close()
+			_, err = stmt.Exec(userID, tagName)
+			if err != nil {
+				syslog.Clog.Errorln(true, err)
+				return
+			}
 		}
-	}()
+	}(userID, tagName)
 	stmt, err := tx.Prepare("delete from record WHERE id = ?")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
@@ -527,18 +574,6 @@ func uploadfile(c echo.Context) (err error) {
 	return c.HTML(http.StatusOK, fmt.Sprintf("<p>文件上传成功: %s</p><iframe name=\"frame\" frameborder=\"0\" height=\"0\" width=\"0\"scrolling=\"no\">%s</iframe>", file.Filename, filename))
 }
 
-func getFilename(c echo.Context) error {
-	type file struct {
-		Name string `json:"name"`
-	}
-	resp := make([]*file, 0)
-	resp = append(resp, &file{
-		Name: "file111"})
-	resp = append(resp, &file{
-		Name: "file222"})
-	return c.JSON(http.StatusOK, &resp)
-}
-
 // 此分享链接一日有效
 func createTempRecord(c echo.Context) (err error) {
 	recordid := c.QueryParam("recordid")
@@ -605,14 +640,18 @@ func getTempRecord(c echo.Context) error {
 }
 
 func getAllTag(c echo.Context) error {
-	stmt, err := database.Mysql.Prepare("select id,tag_name,sum from tag")
+	userID := c.QueryParam("uuid")
+	if userID == "" {
+		return c.String(http.StatusUnauthorized, "用户uuid不许为空")
+	}
+	stmt, err := database.Mysql.Prepare("select id,tag_name,sum from tag where user_id = ? order by id")
 	syslog.Clog.Infoln(true, "mark query tag")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
 	}
 	defer stmt.Close()
-	result, err := stmt.Query()
+	result, err := stmt.Query(userID)
 	defer result.Close()
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
@@ -686,7 +725,6 @@ func queryByLike(c echo.Context) error {
 		return c.String(http.StatusUnauthorized, "查找内容不许为空")
 	}
 	paramStr = "%" + paramStr + "%"
-	syslog.Clog.Traceln(true, paramStr)
 	records := make([]*model.Record, 0)
 	stmt, err := database.Mysql.Prepare("select id,user_id,title,text,tag_name,filepath,update_time from record where user_id = ? and (title like ? or text like ? or filename like ?) order by `update_time` desc")
 	if err != nil {
@@ -720,4 +758,8 @@ func queryByLike(c echo.Context) error {
 		records = append(records, record)
 	}
 	return c.JSON(http.StatusOK, records)
+}
+
+func getNetIP(c echo.Context) error {
+	return c.String(http.StatusOK, config.GLMEMO.Section("netIP").Key("IP").String())
 }

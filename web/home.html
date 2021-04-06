@@ -84,46 +84,17 @@
 
                                         <div style="float: left;">
                                             <video v-if="record.filetype=='mp4'" height="300" width="400" controls>
-                                                <source :src="'http://localhost/'+record.filepath" type="video/mp4">
+                                                <source :src="'http://'+netip+'/'+record.filepath" type="video/mp4">
                                                 您的浏览器不支持Video标签。
                                             </video>
                                         </div>
                                         <div style="float: left;">
-                                            <a v-if="record.filetype=='img'" :href="'http://localhost/'+record.filepath"
+                                            <a v-if="record.filetype=='img'" :href="'http://'+netip+'/'+record.filepath"
                                                 target="_blank">
-                                                <img :src="'http://localhost/'+record.filepath" height="300" width="400"
+                                                <img :src="'http://'+netip+'/'+record.filepath" height="300" width="400"
                                                     alt="测试">
                                             </a>
                                         </div>
-
-                                        <!-- <div style="float: left;">
-                                    <a href="#">
-                                        <video height="300" width="400" controls>
-                                            <source src="./video/trailer.mp4" type="video/mp4">
-                                            您的浏览器不支持Video标签。
-                                        </video>
-                                    </a>
-                                </div>
-                                <div style="float: left;">
-                                    <a href="#">
-                                        <video height="300" width="400" controls>
-                                            <source src="./video/trailer.mp4" type="video/mp4">
-                                            您的浏览器不支持Video标签。
-                                        </video>
-                                    </a>
-                                </div>
-                                <div style="float: left;">
-                                    <a href="./image/thumb-1920-340437.jpg" target="_blank">
-                                        <img src="./image/thumb-1920-340437.jpg" height="300" width="400" alt="测试">
-                                    </a>
-                                </div>
-
-                                <div style="float: left;">
-                                    <a href="./image/thumb-1920-340437.jpg" target="_blank">
-                                        <img src="./image/thumb-1920-340437.jpg" height="300" width="400" alt="测试">
-                                    </a>
-                                </div> -->
-
                                     </div>
                             </li>
                         </ul>
@@ -154,6 +125,7 @@
                 records: [],
                 tags: [],
                 paramstr: "",
+                netip:"",
             },
 
             mounted: function () {
@@ -179,13 +151,22 @@
                             alert("获取备忘录信息有误，请稍后重试")
                         });
                     this.gettags()
+                    this.getnetip()
                 },
                 gettags: function () {
-                    this.$http.get('/getalltag').then(function (res) {
+                    this.$http.get('/getalltag?uuid=' + this.uuid).then(function (res) {
                             this.tags = res.body;
                         },
                         function (res) {
                             alert("获取标签信息有误，请稍后重试")
+                        });
+                },
+                getnetip: function () {
+                    this.$http.get('/getnetip').then(function (res) {
+                            this.netip = res.body;
+                        },
+                        function (res) {
+                            alert("获取服务器地址有误，请稍后重试")
                         });
                 },
                 querybytag: function (tagname) {

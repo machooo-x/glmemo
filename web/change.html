@@ -66,7 +66,7 @@
                         <ul style="padding-left: 0;">
                             <li v-if="filename!=''" style="list-style: none; margin: 0;">
                                 <a class="btn btn-warning btn-xs" @click="rmfile">删除文件</a>
-                                <a :href="'http://localhost/'+filepath" target="_blank">{{filename}}</a>
+                                <a :href="'http://'+netip+'/'+filepath" target="_blank">{{filename}}</a>
                             </li>
                             <!-- <li v-for="f in files" style="list-style: none; margin: 0;">
                                 <a class="btn btn-warning btn-xs" @click="">删除文件</a>
@@ -131,6 +131,7 @@
                 isaddsave: 1, // 默认是新建时的暂存
                 tag: "其它",
                 tags: [],
+                netip:"",
             },
             mounted: function () {
                 var url = location.search; //获取url中"?"符后的字串
@@ -180,14 +181,23 @@
                     this.isaddsave = 0
                 }
                 this.gettags()
+                this.getnetip()
             },
             methods: {
 
                 printtag: function () {
                     console.log(this.tag);
                 },
+                getnetip: function () {
+                    this.$http.get('/getnetip').then(function (res) {
+                            this.netip = res.body;
+                        },
+                        function (res) {
+                            alert("获取服务器地址有误，请稍后重试")
+                        });
+                },
                 gettags: function () {
-                    this.$http.get('/getalltag').then(function (res) {
+                    this.$http.get('/getalltag?uuid=' + this.uuid).then(function (res) {
                             this.tags = res.body;
                         },
                         function (res) {

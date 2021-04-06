@@ -20,6 +20,7 @@ func RegRouter(e *echo.Echo) {
 	e.GET("/getalltag", getAllTag)
 	e.GET("/querybytag", queryByTag)
 	e.GET("/querybylike", queryByLike)
+	e.GET("/getnetip", getNetIP)
 
 	e.POST("/addrecord", addRecord)
 	e.POST("/uploadfile", uploadfile)

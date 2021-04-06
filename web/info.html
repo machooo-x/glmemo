@@ -45,11 +45,11 @@
                     <p>{{record.date}}</p>
                     <p>{{record.text}}</p>
                     <video v-if="record.filetype=='mp4'" height="300" width="400" controls>
-                        <source :src="'http://localhost/'+record.filepath" type="video/mp4">
+                        <source :src="'http://'+netip+'/'+record.filepath" type="video/mp4">
                         您的浏览器不支持Video标签。
                     </video>
-                    <a v-if="record.filetype=='img'" :href="'http://localhost/'+record.filepath" target="_blank">
-                        <img :src="'http://localhost/'+record.filepath" height="300" width="400" alt="测试">
+                    <a v-if="record.filetype=='img'" :href="'http://'+netip+'/'+record.filepath" target="_blank">
+                        <img :src="'http://'+netip+'/'+record.filepath" height="300" width="400" alt="测试">
                     </a>
                 </div>
 
@@ -93,8 +93,8 @@
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                            <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                @click="sharerecord" data-toggle="modal" data-target="#showsharerecordURLModal">确认</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal" @click="sharerecord"
+                                data-toggle="modal" data-target="#showsharerecordURLModal">确认</button>
                         </div>
                     </div>
                 </div>
@@ -132,6 +132,7 @@
                 recordid: "",
                 record: null,
                 tempurl: "",
+                netip: "",
             },
 
             mounted: function () {
@@ -159,9 +160,19 @@
                         function (res) {
                             alert("获取该记录详细信息有误，请稍后重试")
                         });
+                    this.getnetip()
+                },
+                getnetip: function () {
+                    this.$http.get('/getnetip').then(function (res) {
+                            this.netip = res.body;
+                        },
+                        function (res) {
+                            alert("获取服务器地址有误，请稍后重试")
+                        });
                 },
                 delrecord: function () {
-                    this.$http.delete('/delrecord?recordid=' + this.recordid).then(function () {
+                    this.$http.delete('/delrecord?uuid=' + this.uuid + '&recordid=' + this.recordid+'&tagname='+this.record.tagname).then(
+                        function () {
                             window.location.href = "/web/home.html?uuid=" + this.uuid
                         },
                         function (res) {
