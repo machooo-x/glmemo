@@ -55,6 +55,7 @@
                 </div>
                 <div class="form-group">
                     <button type="button" class="btn btn-success btn-block" @click="regist">注册</button>
+                    <button type="button" class="btn btn-info btn-block" @click="back">返回</button>
                 </div>
             </form>
         </section>
@@ -86,7 +87,7 @@
                     }
                     this.$http.get('/regist?name=' + this.name + '&pwd=' + this.second_pwd).then(function (
                         res) {
-                        if (res.body=="repeat name"){
+                        if (res.body == "repeat name") {
                             alert("该用户名已存在，请使用其他用户名注册...")
                             return
                         }
@@ -95,7 +96,10 @@
                     }, function () {
                         alert("注册失败，请重新注册...")
                     })
-                }
+                },
+                back: function () {
+                    window.location.href = "/web/login.html"
+                },
             }
         });
     </script>
