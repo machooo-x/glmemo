@@ -23,8 +23,16 @@ type Record struct {
 	UUID     string `json:"uuid"`
 	Title    string `json:"title"`
 	Text     string `json:"text"`
+	TagName  string `json:"tagname"`
 	FilePath string `json:"filepath"`
 	FileName string `json:"filename"`
 	FileType string `json:"filetype"`
 	Date     string `json:"date"`
+}
+
+// Tag ...
+type Tag struct {
+	ID      int    `json:"id"`
+	TagName string `json:"tagname"`
+	Sum     int    `json:"sum"`
 }

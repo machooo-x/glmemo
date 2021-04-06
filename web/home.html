@@ -52,19 +52,18 @@
                 <div class="row">
                     <div class="col-md-2">
                         <div style="float: right; ">
-                            <ul class="list-group" style="color: yellow;">
-                                <li class="list-group-item"><a href="#" style="text-align: center;">生活</a> </li>
-                                <li class="list-group-item"><a href="#">学习</a> </li>
-                                <li class="list-group-item"><a href="#">工作</a> </li>
-                                <li class="list-group-item"><a href="#">娱乐</a> </li>
-                                <li class="list-group-item"><a href="#">活动</a> </li>
-                            </ul>
+                            <ul v-if="tags!==null" class="list-grou">
+                                <li v-for="t in tags" class="list-group-item">
+                                    <a href="#"
+                                        @click="(querybytag(t.tagname))">{{t.tagname}}&nbsp;&nbsp;({{t.sum}})</a>
+                                </li>
                         </div>
                     </div>
                     <div class="col-md-8">
 
                         <ul v-if="records.length==0" class="list-grou">
-                            <h3>暂无任何记录</h3>
+                            <br><br><br><br>
+                            <h2 style="text-align: center;">暂无记录</h2>
                         </ul>
 
                         <ul v-if="records!==null" class="list-grou">
@@ -131,6 +130,13 @@
                     </div>
 
                     <div class="col-md-2">
+                        <div class="list-group-item">
+                            <input type="text" class="form-control" placeholder="Search for...   (标题、内容、文件名)"
+                                style="float: left;" v-model="paramstr">
+                            <br></br>
+                            <button class="btn btn-success btn-block" @click="querybylike()"><span
+                                    class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -145,7 +151,9 @@
             el: '#app',
             data: {
                 uuid: "",
-                records: []
+                records: [],
+                tags: [],
+                paramstr: "",
             },
 
             mounted: function () {
@@ -169,6 +177,34 @@
                         },
                         function (res) {
                             alert("获取备忘录信息有误，请稍后重试")
+                        });
+                    this.gettags()
+                },
+                gettags: function () {
+                    this.$http.get('/getalltag').then(function (res) {
+                            this.tags = res.body;
+                        },
+                        function (res) {
+                            alert("获取标签信息有误，请稍后重试")
+                        });
+                },
+                querybytag: function (tagname) {
+                    this.$http.get('/querybytag?uuid=' + this.uuid + '&tagname=' + tagname).then(function (
+                            res) {
+                            this.records = res.body
+                        },
+                        function (res) {
+                            alert("根据标签获取备忘录信息有误，请稍后重试")
+                        });
+                },
+                querybylike: function () {
+                    this.$http.get('/querybylike?uuid=' + this.uuid + '&paramstr=' + this.paramstr).then(
+                        function (
+                            res) {
+                            this.records = res.body
+                        },
+                        function (res) {
+                            alert("查询备忘录信息有误，请稍后重试")
                         });
                 },
             },

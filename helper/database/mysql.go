@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"glmemo/config"
 
 	// mysql driver
@@ -36,6 +37,28 @@ func init() {
 		panic(err)
 	}
 
+	/* create tag */
+	sqlStmt = `
+		create table if not exists tag (
+			id int not null auto_increment,
+			tag_name varchar(10) not null,
+			sum int default 0,
+			PRIMARY KEY (id),
+			UNIQUE KEY tag_name(tag_name));`
+	_, err = Mysql.Exec(sqlStmt)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+
+	/* init tag */
+	sqlStmt = `insert ignore into tag(tag_name) values ("我的收藏"),("其它"),("生活"),("学习"),("工作"),("日常"),("随笔"),("家人"),("朋友"),("同学"),("同事"),("娱乐"),("游戏"),("网友"),("书本"),("电影"),("电视剧");`
+	_, err = Mysql.Exec(sqlStmt)
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+
 	/*
 		create record
 	*/
@@ -46,10 +69,13 @@ func init() {
 		update_time char(10) not null,
 		title varchar(20) not null,
 		text varchar(1024) not null,
+		tag_name varchar(10) not null,
+		filename varchar(150),
 		filepath varchar(200),
 		size int UNSIGNED not null,
 		PRIMARY KEY (id),
-		constraint foreign key(user_id) references user(uuid));`
+		constraint foreign key(user_id) references user(uuid),
+		constraint foreign key(tag_name) references tag(tag_name));`
 	_, err = Mysql.Exec(sqlStmt)
 	if err != nil {
 		panic(err)
@@ -65,6 +91,7 @@ func init() {
 		update_time char(10) not null,
 		title varchar(20) not null,
 		text varchar(1024) not null,
+		tag_name varchar(10) not null,
 		filepath varchar(200),
 		size int UNSIGNED not null,
 		is_add_save bool not null,

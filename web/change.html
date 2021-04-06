@@ -55,6 +55,14 @@
                         </textarea>
                     </div>
                     <div class="form-group">
+                        <select v-model="tag" style="float: left;" @click="printtag">
+                            <option v-for="t in tags" v-bind:value="t.tagname">
+                                {{ t.tagname }}
+                            </option>
+                        </select>
+                        <p>&nbsp;&nbsp;请选择标签</p>
+                    </div>
+                    <div class="form-group">
                         <ul style="padding-left: 0;">
                             <li v-if="filename!=''" style="list-style: none; margin: 0;">
                                 <a class="btn btn-warning btn-xs" @click="rmfile">删除文件</a>
@@ -121,6 +129,8 @@
                 filename: "",
                 iscommit: 1, // 默认提交
                 isaddsave: 1, // 默认是新建时的暂存
+                tag: "其它",
+                tags: [],
             },
             mounted: function () {
                 var url = location.search; //获取url中"?"符后的字串
@@ -140,13 +150,15 @@
                     this.$http.get('/querytempsave?uuid=' + this.uuid).then(function (res) {
                             this.title = res.body.title;
                             this.text = res.body.text;
+                            this.tag = res.body.tagname;
                             this.filepath = res.body.filepath;
                             this.filename = res.body.filename;
                             this.recordid = res.body.id;
                             date = res.body.date;
                             console.log(this.recordid);
                             if (date == "0") {
-                                this.recordid = this.generateRecordID()
+                                this.recordid = this.generateRecordID();
+                                this.tag = "其它";
                             }
                             console.log(this.recordid);
                         },
@@ -157,6 +169,7 @@
                     this.$http.get('/showrecord?recordid=' + this.recordid).then(function (res) {
                             this.title = res.body.title;
                             this.text = res.body.text;
+                            this.tag = res.body.tagname;
                             this.filepath = res.body.filepath;
                             this.filename = res.body.filename;
                         },
@@ -166,10 +179,21 @@
                     console.log(this.recordid);
                     this.isaddsave = 0
                 }
-                // this.getfiles()
+                this.gettags()
             },
             methods: {
 
+                printtag: function () {
+                    console.log(this.tag);
+                },
+                gettags: function () {
+                    this.$http.get('/getalltag').then(function (res) {
+                            this.tags = res.body;
+                        },
+                        function (res) {
+                            alert("获取标签信息有误，请稍后重试")
+                        });
+                },
                 upload: function () {
                     $("#form1").submit();
                     var t = setInterval(() => {
@@ -186,8 +210,6 @@
 
                             this.filename = document.getElementById('file').files[0].name;
                             console.log(this.filename);
-
-
                             console.log(this.filepath);
                         } else {
                             clearInterval(t); //清除定时器
@@ -215,13 +237,15 @@
                         '&iscommit=' + this.iscommit + '&isaddsave=' + this.isaddsave, {
                             title: this.title,
                             text: this.text,
+                            tagname: this.tag,
                             filepath: this.filepath,
+                            filename: this.filename,
                         }).then(function (res) {
                         alert("操作成功")
                         window.location.href = "/web/home.html?uuid=" + this.uuid
                     }, function (res) {
-                        alert("操作失败......\r\n"+res.body)
-                        
+                        alert("操作失败......\r\n" + res.body)
+
                         // window.location.href = '/web/change.html?uuid=' + this.uuid
                     })
                 },

@@ -86,6 +86,10 @@
                     }
                     this.$http.get('/regist?name=' + this.name + '&pwd=' + this.second_pwd).then(function (
                         res) {
+                        if (res.body=="repeat name"){
+                            alert("该用户名已存在，请使用其他用户名注册...")
+                            return
+                        }
                         alert("注册成功，请登录...")
                         window.location.href = "/web/login.html"
                     }, function () {

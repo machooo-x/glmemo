@@ -17,6 +17,9 @@ func RegRouter(e *echo.Echo) {
 	e.GET("/limitedtimerecord", queryTempSave)
 	e.GET("/createtemprecord", createTempRecord)
 	e.GET("/gettemprecord", getTempRecord)
+	e.GET("/getalltag", getAllTag)
+	e.GET("/querybytag", queryByTag)
+	e.GET("/querybylike", queryByLike)
 
 	e.POST("/addrecord", addRecord)
 	e.POST("/uploadfile", uploadfile)
