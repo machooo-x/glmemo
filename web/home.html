@@ -33,7 +33,7 @@
         <header>
             <div class="header-container">
                 <div class="logo-box">
-                    <a :href="'/web/home.html?uuid=' + this.uuid"><img src="./image/login.png" alt="logo"></a>
+                    <a :href="'/web/home.html?uuid=' + this.uuid"><img src="./image/login.png" alt="logo"title="回到主页面"></a>
                 </div>
                 <h1 class="title-text">美好生活备忘录</h1>
                 <div class="menu-box">
@@ -173,6 +173,10 @@
                     this.$http.get('/querybytag?uuid=' + this.uuid + '&tagname=' + tagname).then(function (
                             res) {
                             this.records = res.body
+                            if (this.records.length==0){
+                                alert("未查询到相关记录，将返回主页面")
+                                window.location.href = "/web/home.html?uuid=" + this.uuid;
+                            }
                         },
                         function (res) {
                             alert("根据标签获取备忘录信息有误，请稍后重试")
@@ -183,6 +187,11 @@
                         function (
                             res) {
                             this.records = res.body
+                            if (this.records.length==0){
+                                alert("未查询到相关记录，将返回主页面")
+                                window.location.href = "/web/home.html?uuid=" + this.uuid;
+                            }
+
                         },
                         function (res) {
                             alert("查询备忘录信息有误，请稍后重试")

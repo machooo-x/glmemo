@@ -31,7 +31,8 @@ func init() {
 			uuid char(36) not null PRIMARY KEY,
 			reg_time int unsigned not null,
 			name varchar(20) not null,
-			pwd varchar(20) not null);`
+			pwd varchar(20) not null,
+			UNIQUE KEY name_idx (name));`
 	_, err = Mysql.Exec(sqlStmt)
 	if err != nil {
 		panic(err)

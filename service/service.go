@@ -20,13 +20,11 @@ import (
 )
 
 func login(c echo.Context) (err error) {
-
-	name := c.QueryParam("name")
-	pwd := c.QueryParam("pwd")
-	if name == "" || pwd == "" {
+	name := c.QueryParam("name") //获取用户名
+	pwd := c.QueryParam("pwd")   //获取密码
+	if name == "" || pwd == "" { //校验用户名和密码
 		return c.String(http.StatusUnauthorized, "用户名和密码不许为空")
 	}
-
 	user := &model.User{}
 	stmt, err := database.Mysql.Prepare("select * from user where name = ?")
 	if err != nil {
@@ -40,7 +38,7 @@ func login(c echo.Context) (err error) {
 		syslog.Clog.Errorln(true, err)
 		return err
 	}
-	if result.Next() {
+	if result.Next() { //检测是否已注册
 		err = result.Scan(&user.UUID, &user.Date, &user.Name, &user.Pwd)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
@@ -56,9 +54,9 @@ func login(c echo.Context) (err error) {
 }
 
 func regist(c echo.Context) (err error) {
-	name := c.QueryParam("name")
-	pwd := c.QueryParam("pwd")
-	if name == "" || pwd == "" {
+	name := c.QueryParam("name") //获取用户名
+	pwd := c.QueryParam("pwd")   //获取密码
+	if name == "" || pwd == "" { //校验用户名和密码
 		return c.String(http.StatusUnauthorized, "用户名和密码不许为空")
 	}
 
@@ -79,16 +77,15 @@ func regist(c echo.Context) (err error) {
 		return c.String(http.StatusOK, "repeat name")
 	}
 	uuid := uuid.New().String()
-
-	tx, err := database.Mysql.Begin()
+	tx, err := database.Mysql.Begin() // 开启事务
 	defer func(uuid string) {
 		if err != nil {
-			tx.Rollback()
+			tx.Rollback() // 有错误则直接回滚，不向后进行操作
 		} else {
-			if tx.Commit() != nil {
+			if tx.Commit() != nil { // 提交失败则回滚
 				syslog.Clog.Errorln(true, err)
 				tx.Rollback()
-			} else {
+			} else { //注册成功后初始化标签表中的该用户相关数据
 				tx, err = database.Mysql.Begin()
 				defer func() {
 					if tx.Commit() != nil {
@@ -116,7 +113,7 @@ func regist(c echo.Context) (err error) {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(uuid, time.Now().Unix(), name, pwd)
+	_, err = stmt.Exec(uuid, time.Now().Unix(), name, pwd) // 在用户表中新建数据
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
@@ -125,7 +122,7 @@ func regist(c echo.Context) (err error) {
 }
 
 func getRecordList(c echo.Context) (err error) {
-	uuid := c.QueryParam("uuid")
+	uuid := c.QueryParam("uuid") // 获取用户的id
 	if uuid == "" {
 		return c.String(http.StatusUnauthorized, "用户uuid不许为空")
 	}
@@ -136,7 +133,7 @@ func getRecordList(c echo.Context) (err error) {
 		return err
 	}
 	defer stmt.Close()
-	result, err := stmt.Query(uuid)
+	result, err := stmt.Query(uuid) // 查找该用户所有的记录并根据时间倒序排列
 	defer result.Close()
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
@@ -165,15 +162,15 @@ func getRecordList(c echo.Context) (err error) {
 }
 
 func showRecord(c echo.Context) (err error) {
-	recordid := c.QueryParam("recordid")
+	recordid := c.QueryParam("recordid") // 获取查看的文案ID
 	if recordid == "" {
-		return c.String(http.StatusUnauthorized, "记录的id不许为空")
+		return c.String(http.StatusUnauthorized, "文案的id不许为空")
 	}
 	record := &model.Record{}
 	var dataTemp int64
 
-	info := c.QueryParam("info")
-	if info == "" {
+	info := c.QueryParam("info") // info用来判断是查看暂存的文案，还是查看提交的文案
+	if info == "" {              // 当info为空时，从临时表查找上次暂存的数据进行返回
 		stmt, err := database.Mysql.Prepare("select record_id,user_id,title,text,tag_name,filepath,update_time from temp_record where record_id = ?")
 		syslog.Clog.Infoln(true, "mark query temp")
 		if err != nil {
@@ -294,7 +291,7 @@ func addRecord(c echo.Context) (err error) {
 	isCommit := c.QueryParam("iscommit")
 	isAddSave := c.QueryParam("isaddsave")
 
-	type req struct {
+	type req struct { // 用于获取用户输入内容的参数
 		Title    string `json:"title"`
 		Text     string `json:"text"`
 		TagName  string `json:"tagname"`
@@ -316,7 +313,7 @@ func addRecord(c echo.Context) (err error) {
 	}
 	tx, err := database.Mysql.Begin()
 	defer func(userID, recordID string, isCommit string, tagName, isAddSave string) {
-		if err != nil {
+		if err != nil { // 如果操作存在异常则事务回滚
 			tx.Rollback()
 		} else {
 			if tx.Commit() != nil {
@@ -331,7 +328,7 @@ func addRecord(c echo.Context) (err error) {
 							tx.Rollback()
 						}
 					}()
-					if isAddSave != "0" {
+					if isAddSave != "0" { // 如果该文案是新建的，更新标签表中该用户的数据，是该标签下文案数量加一
 						stmt, err := tx.Prepare("UPDATE tag SET sum = sum+1 WHERE user_id = ? and tag_name = ?")
 						if err != nil {
 							syslog.Clog.Errorln(true, err)
@@ -344,7 +341,7 @@ func addRecord(c echo.Context) (err error) {
 							// return
 						}
 					}
-					stmt, err := tx.Prepare("delete from temp_record WHERE record_id = ?")
+					stmt, err := tx.Prepare("delete from temp_record WHERE record_id = ?") // 文案新建成功后，删除临时文案表中备份的记录
 					if err != nil {
 						syslog.Clog.Errorln(true, err)
 						return
@@ -360,11 +357,11 @@ func addRecord(c echo.Context) (err error) {
 			}
 		}
 	}(userID, recordID, isCommit, reqData.TagName, isAddSave)
-
 	var str string
+	// 如果是提交的话，将数据更新到文案表中   此处ON DUPLICATE KEY标志着如果存在则更新，不存在则添加
 	if isCommit == "1" {
 		str = "INSERT INTO record(id,user_id,update_time,title,text,tag_name,filename,filepath) values(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id = ?, user_id = ?, update_time = ?, title = ?, text = ?, tag_name = ?,filename = ?, filepath = ?"
-	} else if isCommit == "0" {
+	} else if isCommit == "0" { // 如果不是新建的话，将数据插入到临时文案表中，备份修改，便于下次获取修改记录
 		str = "INSERT INTO temp_record(record_id,user_id,update_time,title,text,tag_name,filepath,is_add_save) VALUE(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE record_id=?,user_id = ?,update_time = ?, title = ?, text= ?, tag_name = ?, filepath = ?, is_add_save = ?"
 		stmt, err := tx.Prepare(str)
 		if err != nil {
@@ -382,7 +379,6 @@ func addRecord(c echo.Context) (err error) {
 		}
 		return nil
 	}
-
 	stmt, err := tx.Prepare(str)
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
@@ -395,51 +391,8 @@ func addRecord(c echo.Context) (err error) {
 		return err
 	}
 	syslog.Clog.Infoln(true, reqData)
-
 	return nil
 }
-
-// func changeRecord(c echo.Context) (err error) {
-// 	recordid := c.QueryParam("recordid")
-// 	if recordid == "" {
-// 		return c.String(http.StatusUnauthorized, "记录的id不许为空")
-// 	}
-
-// 	type req struct {
-// 		Title string `json:"title"`
-// 		Text  string `json:"text"`
-// 	}
-// 	reqData := &req{}
-// 	err = c.Bind(&reqData)
-// 	if err != nil {
-// 		syslog.Clog.Errorln(true, err)
-// 		return err
-// 	}
-// 	syslog.Clog.Infoln(true, reqData)
-// 	if reqData.Text == "" {
-// 		return c.String(http.StatusBadRequest, "text不许为空")
-// 	}
-
-// 	tx, err := database.Mysql.Begin()
-// 	defer func() {
-// 		if tx.Commit() != nil {
-// 			syslog.Clog.Errorln(true, err)
-// 			tx.Rollback()
-// 		}
-// 	}()
-// 	stmt, err := tx.Prepare("UPDATE record SET title = ?, text = ?,,tag_name = ?,update_time = ? WHERE id = ?")
-// 	if err != nil {
-// 		syslog.Clog.Errorln(true, err)
-// 		return err
-// 	}
-// 	defer stmt.Close()
-// 	_, err = stmt.Exec(reqData.Title, reqData.Text,reqData.TagName, time.Now().Unix(), recordid)
-// 	if err != nil {
-// 		syslog.Clog.Errorln(true, err)
-// 		return err
-// 	}
-// 	return
-// }
 
 func delRecord(c echo.Context) (err error) {
 	userID := c.QueryParam("uuid")
@@ -700,7 +653,7 @@ func queryByTag(c echo.Context) error {
 		return err
 	}
 	defer stmt.Close()
-	result, err := stmt.Query(uuid, tagName)
+	result, err := stmt.Query(uuid, tagName) // 通过标签查找时，通过用户id与标签名称进行查找，建表时建立了索引，查找时间不会耗费太多时间
 	defer result.Close()
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
@@ -746,7 +699,7 @@ func queryByLike(c echo.Context) error {
 		return err
 	}
 	defer stmt.Close()
-	result, err := stmt.Query(uuid, paramStr, paramStr, paramStr)
+	result, err := stmt.Query(uuid, paramStr, paramStr, paramStr) // 通过mysql语句关键字like进行模糊查询并将结果依据更新时间倒序排列
 	defer result.Close()
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
@@ -768,7 +721,6 @@ func queryByLike(c echo.Context) error {
 				record.FileType = "mp4"
 			}
 		}
-
 		records = append(records, record)
 	}
 	return c.JSON(http.StatusOK, records)
