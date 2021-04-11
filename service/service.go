@@ -203,39 +203,39 @@ func showRecord(c echo.Context) (err error) {
 				record.FileName = record.FilePath[idx+1:]
 				syslog.Clog.Infoln(true, record.FileName)
 			}
-			return c.JSON(http.StatusOK, record)
 		}
-	}
-	stmt, err := database.Mysql.Prepare("select id,user_id,title,text,tag_name,filepath,update_time from record where id = ?")
-	if err != nil {
-		syslog.Clog.Errorln(true, err)
-		return err
-	}
-	defer stmt.Close()
-	result, err := stmt.Query(recordid)
-	defer result.Close()
-	if err != nil {
-		syslog.Clog.Errorln(true, err)
-		return err
-	}
-	if result.Next() {
-		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &record.TagName, &record.FilePath, &dataTemp)
+	} else {
+		stmt, err := database.Mysql.Prepare("select id,user_id,title,text,tag_name,filepath,update_time from record where id = ?")
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			return err
 		}
-		record.Date = time.Unix(dataTemp, 0).Format("2006-01-02 15:04:05")
-		if record.FilePath != "" {
-			if !strings.Contains(record.FilePath, "mp4") {
-				record.FileType = "img"
-			} else {
-				record.FileType = "mp4"
+		defer stmt.Close()
+		result, err := stmt.Query(recordid)
+		defer result.Close()
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		if result.Next() {
+			err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &record.TagName, &record.FilePath, &dataTemp)
+			if err != nil {
+				syslog.Clog.Errorln(true, err)
+				return err
+			}
+			record.Date = time.Unix(dataTemp, 0).Format("2006-01-02 15:04:05")
+			if record.FilePath != "" {
+				if !strings.Contains(record.FilePath, "mp4") {
+					record.FileType = "img"
+				} else {
+					record.FileType = "mp4"
+				}
 			}
 		}
-	}
-	idx := strings.LastIndex(record.FilePath, "/")
-	if idx != -1 {
-		record.FileName = record.FilePath[idx+1:]
+		idx := strings.LastIndex(record.FilePath, "/")
+		if idx != -1 {
+			record.FileName = record.FilePath[idx+1:]
+		}
 	}
 	return c.JSON(http.StatusOK, record)
 }
@@ -543,34 +543,34 @@ func uploadfile(c echo.Context) (err error) {
 
 // 此分享链接一日有效
 func createTempRecord(c echo.Context) (err error) {
-	recordid := c.QueryParam("recordid")
+	recordid := c.QueryParam("recordid") //获取需要分享的文案ID
 	if recordid == "" {
 		return c.String(http.StatusUnauthorized, "recordid为空")
 	}
 	syslog.Clog.Traceln(true, recordid)
 	key := uuid.New().String()
-	r := database.RedisPool.Get()
-	r.Do("set", key, recordid, "EX", 24*3600)
+	r := database.RedisPool.Get()             //从Redis的缓冲池中获取一个redis连接
+	r.Do("set", key, recordid, "EX", 24*3600) // 把UUID设备Key，文案ID设为值，并设置过期时间为二十四小时
 	tempURL := fmt.Sprintf("http://%s/web/sharerecord.html?token=%s", config.GLMEMO.Section("netIP").Key("IP").String(), key)
-	return c.String(http.StatusOK, tempURL)
+	return c.String(http.StatusOK, tempURL) // 将拼接后的地址返回，此地址包含二十四小时候过期的token
 }
 
 func getTempRecord(c echo.Context) error {
-	token := c.QueryParam("token")
+	token := c.QueryParam("token") //获取分享链接的key
 	syslog.Clog.Traceln(true, token)
 	record := &model.Record{}
 	var dataTemp int64
-	r := database.RedisPool.Get()
-	recordID, err := redis.String(r.Do("GET", token))
+	r := database.RedisPool.Get()                     //从Redis的缓冲池中获取一个redis连接
+	recordID, err := redis.String(r.Do("GET", token)) //从redis数据库中查找该token对应的文案ID
 	if err != nil {
-		if err.Error() == "redigo: nil returned" {
-			return c.JSON(http.StatusOK, record)
+		if err.Error() == "redigo: nil returned" { // 当文案过期时，使分享页面不显示数据
+			return c.JSON(http.StatusOK, nil)
 		}
 		syslog.Clog.Errorln(true, err)
 		return err
 	}
 	syslog.Clog.Traceln(true, recordID)
-
+	// 根据该文案ID获取相应数据
 	stmt, err := database.Mysql.Prepare("select id,user_id,title,text,tag_name,filepath,update_time from record where id = ?")
 	if err != nil {
 
