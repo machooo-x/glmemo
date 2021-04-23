@@ -293,6 +293,8 @@ func addRecord(c echo.Context) (err error) {
 		syslog.Clog.Errorln(true, "recordid==\"\"")
 		return c.String(http.StatusBadRequest, "操作失败，请重新登陆")
 	}
+	lastTag := c.QueryParam("lastTag")
+
 	syslog.Clog.Infoln(true, userID, recordID)
 	isCommit := c.QueryParam("iscommit")
 	isAddSave := c.QueryParam("isaddsave")
@@ -318,7 +320,7 @@ func addRecord(c echo.Context) (err error) {
 		return c.String(http.StatusBadRequest, "内容不许为空")
 	}
 	tx, err := database.Mysql.Begin()
-	defer func(userID, recordID string, isCommit string, tagName, isAddSave string) {
+	defer func(userID, recordID , isCommit , tagName, isAddSave,lastTag string) {
 		if err != nil { // 如果操作存在异常则事务回滚
 			tx.Rollback()
 		} else {
@@ -358,11 +360,38 @@ func addRecord(c echo.Context) (err error) {
 						syslog.Clog.Errorln(true, err)
 						return
 					}
+					if lastTag!=tagName&&isAddSave=="0"{
+						stmt, err := tx.Prepare("UPDATE tag SET sum = sum+1 WHERE user_id = ? and tag_name = ?")
+						if err != nil {
+							syslog.Clog.Errorln(true, err)
+							// return
+						}
+						defer stmt.Close()
+						_, err = stmt.Exec(userID, tagName)
+						if err != nil {
+							syslog.Clog.Errorln(true, err)
+							// return
+						}
+						syslog.Clog.Infoln(true,tagName,"++")
+						stmt, err = tx.Prepare("UPDATE tag SET sum = sum-1 WHERE user_id = ? and tag_name = ?")
+						if err != nil {
+							syslog.Clog.Errorln(true, err)
+							// return
+						}
+						defer stmt.Close()
+						_, err = stmt.Exec(userID, lastTag)
+						if err != nil {
+							syslog.Clog.Errorln(true, err)
+							// return
+						}
+						syslog.Clog.Infoln(true,lastTag,"--")
+
+					}
 					return
 				}
 			}
 		}
-	}(userID, recordID, isCommit, reqData.TagName, isAddSave)
+	}(userID, recordID, isCommit, reqData.TagName, isAddSave,lastTag)
 	var str string
 	// 如果是提交的话，将数据更新到文案表中   此处ON DUPLICATE KEY标志着如果存在则更新，不存在则添加
 	if isCommit == "1" {
