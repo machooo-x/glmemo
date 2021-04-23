@@ -39,7 +39,7 @@ func login(c echo.Context) (err error) {
 		return err
 	}
 	if result.Next() { //检测是否已注册
-		err = result.Scan(&user.UUID, &user.Date, &user.Name, &user.Pwd)
+		err = result.Scan(&user.UUID, &user.Name, &user.Pwd, &user.Mailbox, &user.RegTime, &user.LastTime)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			return err
@@ -54,10 +54,12 @@ func login(c echo.Context) (err error) {
 }
 
 func regist(c echo.Context) (err error) {
-	name := c.QueryParam("name") //获取用户名
-	pwd := c.QueryParam("pwd")   //获取密码
-	if name == "" || pwd == "" { //校验用户名和密码
-		return c.String(http.StatusUnauthorized, "用户名和密码不许为空")
+	name := c.QueryParam("name")       //获取用户名
+	pwd := c.QueryParam("pwd")         //获取密码
+	mailbox := c.QueryParam("mailbox") //获取邮箱
+
+	if name == "" || pwd == "" || mailbox == "" { //校验用户名、密码和邮箱
+		return c.String(http.StatusUnauthorized, "用户名、密码和邮箱都不许为空")
 	}
 
 	stmt, err := database.Mysql.Prepare("select * from user where name = ?")
@@ -99,6 +101,7 @@ func regist(c echo.Context) (err error) {
 					return
 				}
 				defer stmt.Close()
+				syslog.Clog.Infoln(true,uuid)
 				_, err = stmt.Exec(uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid)
 				if err != nil {
 					syslog.Clog.Errorln(true, err)
@@ -107,13 +110,14 @@ func regist(c echo.Context) (err error) {
 			}
 		}
 	}(uuid)
-	stmt, err = tx.Prepare("insert into user values(?,?,?,?)")
+	stmt, err = tx.Prepare("insert into user values(?,?,?,?,?,?)")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(uuid, time.Now().Unix(), name, pwd) // 在用户表中新建数据
+	time := time.Now().Unix()
+	_, err = stmt.Exec(uuid, name, pwd, mailbox, time, time) // 在用户表中新建数据
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
@@ -203,40 +207,41 @@ func showRecord(c echo.Context) (err error) {
 				record.FileName = record.FilePath[idx+1:]
 				syslog.Clog.Infoln(true, record.FileName)
 			}
-		}
-	} else {
-		stmt, err := database.Mysql.Prepare("select id,user_id,title,text,tag_name,filepath,update_time from record where id = ?")
-		if err != nil {
-			syslog.Clog.Errorln(true, err)
-			return err
-		}
-		defer stmt.Close()
-		result, err := stmt.Query(recordid)
-		defer result.Close()
-		if err != nil {
-			syslog.Clog.Errorln(true, err)
-			return err
-		}
-		if result.Next() {
-			err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &record.TagName, &record.FilePath, &dataTemp)
-			if err != nil {
-				syslog.Clog.Errorln(true, err)
-				return err
-			}
-			record.Date = time.Unix(dataTemp, 0).Format("2006-01-02 15:04:05")
-			if record.FilePath != "" {
-				if !strings.Contains(record.FilePath, "mp4") {
-					record.FileType = "img"
-				} else {
-					record.FileType = "mp4"
-				}
-			}
-		}
-		idx := strings.LastIndex(record.FilePath, "/")
-		if idx != -1 {
-			record.FileName = record.FilePath[idx+1:]
+			return c.JSON(http.StatusOK, &record)
 		}
 	}
+	stmt, err := database.Mysql.Prepare("select id,user_id,title,text,tag_name,filepath,update_time from record where id = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	result, err := stmt.Query(recordid)
+	defer result.Close()
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	if result.Next() {
+		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &record.TagName, &record.FilePath, &dataTemp)
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		record.Date = time.Unix(dataTemp, 0).Format("2006-01-02 15:04:05")
+		if record.FilePath != "" {
+			if !strings.Contains(record.FilePath, "mp4") {
+				record.FileType = "img"
+			} else {
+				record.FileType = "mp4"
+			}
+		}
+	}
+	idx := strings.LastIndex(record.FilePath, "/")
+	if idx != -1 {
+		record.FileName = record.FilePath[idx+1:]
+	}
+
 	return c.JSON(http.StatusOK, record)
 }
 
@@ -728,4 +733,103 @@ func queryByLike(c echo.Context) error {
 
 func getNetIP(c echo.Context) error {
 	return c.String(http.StatusOK, config.GLMEMO.Section("netIP").Key("IP").String())
+}
+
+func getToDoList(c echo.Context) (err error) {
+	uuid := c.QueryParam("uuid") // 获取用户的id
+	if uuid == "" {
+		return c.String(http.StatusUnauthorized, "用户uuid不许为空")
+	}
+	toDoList := make([]*model.ToDo, 0)
+	stmt, err := database.Mysql.Prepare("select * from schedule where user_id = ? order by `reg_time`")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	result, err := stmt.Query(uuid) // 查找该用户所有的记录并根据时间倒序排列
+	defer result.Close()
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	var regTime, remindTime int64
+
+	for result.Next() {
+		ToDo := &model.ToDo{}
+		err = result.Scan(&ToDo.ID, &ToDo.Title, &ToDo.Text, &ToDo.UserID, &ToDo.UserMailbox, &regTime, &remindTime)
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		ToDo.RegTime = time.Unix(regTime, 0).Format("2006-01-02 15:04:05")
+		ToDo.RemindTime = time.Unix(remindTime, 0).Format("2006-01-02 15:04:05")
+		toDoList = append(toDoList, ToDo)
+	}
+	return c.JSON(http.StatusOK, toDoList)
+}
+
+func addToDo(c echo.Context) (err error) {
+	userID := c.QueryParam("uuid")
+	if userID == "" {
+		syslog.Clog.Errorln(true, "userID==\"\"")
+		return c.String(http.StatusBadRequest, "操作失败，请重新登陆")
+	}
+
+	type req struct { // 用于获取用户输入内容的参数
+		Title      string `json:"title"`
+		Text       string `json:"text"`
+		RemindTime string `json:"remindTime"`
+		Mailbox    string `json:"mailbox"`
+	}
+	reqData := &req{}
+	err = c.Bind(&reqData)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	syslog.Clog.Infoln(true, reqData)
+	if reqData.Title == "" || reqData.Text == "" || reqData.RemindTime == "" {
+		return c.String(http.StatusBadRequest, "标题、内容和提醒时间都不许为空")
+	}
+	stmt, err := database.Mysql.Prepare("select mailbox from user where uuid = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	result, err := stmt.Query(userID)
+	defer result.Close()
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	if result.Next() {
+		result.Scan(&reqData.Mailbox)
+	}
+	toDoID := uuid.New().String()
+	tx, err := database.Mysql.Begin() // 开启事务
+	defer func() {
+		if err != nil {
+			tx.Rollback() // 有错误则直接回滚，不向后进行操作
+		} else {
+			if tx.Commit() != nil { // 提交失败则回滚
+				syslog.Clog.Errorln(true, err)
+				tx.Rollback()
+			}
+		}
+	}()
+	stmt, err = tx.Prepare("insert into schedule values(?,?,?,?,?,?,?)")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	time := time.Now().Unix()
+	_, err = stmt.Exec(toDoID, reqData.Title, reqData.Text, userID, reqData.Mailbox, time, time) // 在用户表中新建数据
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	return
 }

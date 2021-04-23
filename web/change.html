@@ -22,34 +22,50 @@
 
 <body>
     <div id="app">
-        <header>
-            <div class="header-container">
-                <div class="logo-box">
-                    <a :href="'/web/home.html?uuid=' + this.uuid"><img src="./image/login.png" alt="logo"></a>
-                </div>
-                <h1 class="title-text">美好生活备忘录</h1>
-                <div class="menu-box">
-                    <div class="btn-box">
-                        <a href="#"><img src="./image/add.png" title="添加备忘"> </a>
+        <nav class="navbar navbar-inverse navbar-static-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-1">
+                        <div style="text-align: left;">
+                            <a :href="'/web/home.html?uuid=' + this.uuid"><img src="./image/login.png" alt="logo"
+                                    title="回到主页面"></a>
+                        </div>
                     </div>
-                    <div class="btn-box">
-                        <a href="/web/login.html"><img src="./image/logout.png" title="注销账号"> </a>
+                    <div class="col-md-3">
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                            <ul class="nav navbar-nav">
+                                <li class="active"><a :href="'/web/home.html?uuid=' + this.uuid">备忘文案</a></li>
+                                <li><a :href="'/web/schedule.html?uuid=' + this.uuid">待办事项</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="sys-name" style="text-align: center; font-size: 26px; line-height:50px ;margin-bottom: 0px;   color: rgb(195, 201, 202);
+                               font-family: Arial, Helvetica, sans-serif;">美好生活备忘录</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="text-align: right;">
+                            <a :href="'/web/change.html?uuid=' + this.uuid"><img src="./image/add.png" title="添加备忘">
+                            </a>
+                            <a href="/web/login.html"><img src="./image/logout.png" title="退出账号"> </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </header>
+        </nav>
+        
         <section class="container">
             <div class="row">
                 <div class="col-12">
                     <div class="form-group">
                         <label for="title">
-                            <h1>请输入标题：</h1>
+                            <h1>文案标题：</h1>
                         </label>
                         <input id="title" class="form-control" type="text" v-model="title">
                     </div>
                     <div class="form-group">
                         <label for="content">
-                            <h1>请输入内容：</h1>
+                            <h1>文案内容：</h1>
                         </label>
                         <textarea id="content" name="content" class="form-group" v-model="text">
                         </textarea>
@@ -131,7 +147,7 @@
                 isaddsave: 1, // 默认是新建时的暂存
                 tag: "其它",
                 tags: [],
-                netip:"",
+                netip: "",
             },
             mounted: function () {
                 var url = location.search; //获取url中"?"符后的字串
@@ -217,7 +233,6 @@
                             this.filepath = word
                             this.filepath = this.filepath.substring(document.getElementById('file')
                                 .files[0].name.length + 8, this.filepath.length)
-
                             this.filename = document.getElementById('file').files[0].name;
                             console.log(this.filename);
                             console.log(this.filepath);
@@ -225,7 +240,7 @@
                             clearInterval(t); //清除定时器
                             alert("请选择文件进行上传...");
                         }
-                    }, 1000);
+                    }, 5000);
                 },
                 rmfile: function () {
                     this.filepath = ""

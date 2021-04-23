@@ -37,17 +37,22 @@
     <div id="app">
         <div>
             <br><br><br><br><br><br><br><br>
-            <h1>美好生活备忘录<small style="font-size: x-small;"><br>machooo@qq.com</small></h1>
+            <h1>美好生活备忘录<small style="font-size: x-small;"><br><br>machooo@qq.com</small></h1>
         </div>
         <section id="form-content">
             <form action="">
                 <div class="form-group">
                     <label for="name">用户名:</label>
-                    <input id="name" class="form-control" type="text" name="" v-model="name">
+                    <input id="name" class="form-control" type="text" name="" autocomplete='tel' v-model="name">
                 </div>
                 <div class="form-group">
                     <label for="pass">密码:</label>
-                    <input id="pass" class="form-control" type="password" name="" v-model="pwd">
+                    <input id="pass" class="form-control" type="password" name="" autocomplete='tel' v-model="pwd">
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" name="" v-model="isManager">管理员
+                    </label>
                 </div>
                 <div class="form-group">
                     <button id="submit" type="button" class="btn btn-primary btn-block" @click="login">登录</button>
@@ -64,7 +69,8 @@
             el: '#app',
             data: {
                 name: "",
-                pwd: ""
+                pwd: "",
+                isManager: "",
             },
 
             methods: {
@@ -76,12 +82,17 @@
                         alert("密码不许为空")
                         return
                     }
-                    this.$http.get('/login?name=' + this.name + '&pwd=' + this.pwd).then(function (res) {
-                            window.location.href = "/web/home.html?uuid=" + res.body;
-                        },
-                        function (res) {
-                            alert(res.body)
-                        });
+                    if (this.isManager) {
+                        console.log(this.isManager)
+                    } else {
+                        this.$http.get('/login?name=' + this.name + '&pwd=' + this.pwd).then(function (
+                                res) {
+                                window.location.href = "/web/home.html?uuid=" + res.body;
+                            },
+                            function (res) {
+                                alert(res.body)
+                            });
+                    }
                 }
             }
         });

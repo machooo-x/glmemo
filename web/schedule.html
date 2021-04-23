@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static\css\usual.css">
+    <script src="static/jquery/js/jquery.min.js"></script>
+    <script src="static/bootstrap/js/popper.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="static/vuejs/vue.min.js"></script>
+    <script src="static/vuejs/vue-resource.min.js"></script>
+    <title>美好生活备忘录</title>
+    <style>
+        section {
+            height: 100%;
+            top: 50%;
+            margin-left: -25px;
+            color: rgb(166, 173, 177);
+        }
+
+        p.sansserif {
+            font-family: Arial, Helvetica, sans-serif;
+            color: black;
+            font-size: medium;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <nav class="navbar navbar-inverse navbar-static-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-1">
+                        <div style="text-align: left;">
+                            <a :href="'/web/home.html?uuid=' + this.uuid"><img src="./image/login.png" alt="logo"
+                                    title="回到主页面"></a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                            <ul class="nav navbar-nav">
+                                <li><a :href="'/web/home.html?uuid=' + this.uuid">备忘文案</a></li>
+                                <li class="active"><a :href="'/web/schedule.html?uuid=' + this.uuid">待办事项</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="sys-name" style="text-align: center; font-size: 26px; line-height:50px ;margin-bottom: 0px;   color: rgb(195, 201, 202);
+                               font-family: Arial, Helvetica, sans-serif;">美好生活备忘录</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="text-align: right;">
+                            <a :href="'/web/newschedule.html?uuid=' + this.uuid"><img src="./image/add.png"
+                                    title="添加待办">
+                            </a>
+                            <a href="/web/login.html"><img src="./image/logout.png" title="退出账号"> </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <section>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-8">
+
+                        <ul v-if="toDoList.length==0" class="list-grou">
+                            <br><br><br><br>
+                            <h2 style="text-align: center;">暂无待办事项</h2>
+                        </ul>
+
+                        <ul v-if="toDoList!==null" class="list-grou">
+                            <li v-for="toDo in toDoList" class="list-group-item">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <a :href="'/web/info.html?uuid=' + toDo.uuid + '&recordid=' + toDo.id">
+                                            <h3 class="panel-title">{{toDo.title}}</h3>
+                                        </a>
+                                    </div>
+                                    <div class="panel-body" style="height: auto;">
+                                        <div id="date" style="float: left;">
+                                            <p style="font-style: italic;">创建时间&nbsp{{toDo.regTime}}</p>
+                                        </div>
+                                        <div id="date" >
+                                            <p>&nbsp&nbsp&nbsp提醒时间&nbsp{{toDo.remindTime}}</p>
+                                        </div>
+                                        <div>
+                                            <p class="sansserif"> {{toDo.text}}</p>
+                                        </div>
+                                    </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-md-2">
+                        <div class="list-group-item">
+                            <input type="text" class="form-control" placeholder="Search for...   (标题、内容)"
+                                style="float: left;" v-model="paramstr">
+                            <br></br>
+                            <button class="btn btn-success btn-block" @click=""><span class="glyphicon glyphicon-search"
+                                    aria-hidden="true"></span></button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        <footer>
+            <p>machooo@qq.com</p>
+        </footer>
+    </div>
+    <script type="text/javascript">
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                uuid: "",
+                toDoList: [],
+                paramstr: "",
+            },
+
+            mounted: function () {
+                var url = location.search; //获取url中"?"符后的字串
+                var theRequest = new Object();
+                if (url.indexOf("?") != -1) {
+                    var str = url.substr(1);
+                    strs = str.split("&");
+                    for (var i = 0; i < strs.length; i++) {
+                        theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                    }
+                }
+                this.uuid = theRequest.uuid
+                console.log(this.uuid);
+                this.init()
+            },
+            methods: {
+                init: function () {
+                    this.$http.get('/getToDoList?uuid=' + this.uuid).then(function (res) {
+                            this.toDoList = res.body
+                        },
+                        function (res) {
+                            alert("获取待办事项信息有误，请稍后重试")
+                        });
+                },
+            },
+        });
+    </script>
+</body>
+
+</html>

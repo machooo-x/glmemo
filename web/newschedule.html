@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>美好生活备忘录</title>
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static\css\usual.css">
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap-datetimepicker.min.css">
+    <script src="static/jquery/js/jquery.min.js"></script>
+    <script src="static/bootstrap/js/popper.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap-datetimepicker.js"></script>
+    <script src="static/bootstrap/js/bootstrap-datetimepicker.zh-CN.js"></script>
+    <script src="static/vuejs/vue.min.js"></script>
+    <script src="static/vuejs/vue-resource.min.js"></script>
+
+    <style>
+        .form-group {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <nav class="navbar navbar-inverse navbar-static-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-1">
+                        <div style="text-align: left;">
+                            <a :href="'/web/home.html?uuid=' + this.uuid"><img src="./image/login.png" alt="logo"
+                                    title="回到主页面"></a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                            <ul class="nav navbar-nav">
+                                <li><a :href="'/web/home.html?uuid=' + this.uuid">备忘文案</a></li>
+                                <li class="active"><a :href="'/web/schedule.html?uuid=' + this.uuid">待办事项</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="sys-name" style="text-align: center; font-size: 26px; line-height:50px ;margin-bottom: 0px;   color: rgb(195, 201, 202);
+                               font-family: Arial, Helvetica, sans-serif;">美好生活备忘录</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="text-align: right;">
+                            <a :href="'/web/change.html?uuid=' + this.uuid"><img src="./image/add.png" title="添加待办">
+                            </a>
+                            <a href="/web/login.html"><img src="./image/logout.png" title="退出账号"> </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <section class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <label for="title">
+                            <h1>待办标题：</h1>
+                        </label>
+                        <input id="title" class="form-control" type="text" v-model="title">
+                    </div>
+                    <div class="form-group">
+                        <label for="content">
+                            <h1>待办内容：</h1>
+                        </label>
+                        <textarea id="content" name="content" class="form-group"
+                            style="width: 100%;height: 100px; resize: none;" v-model="text">
+                        </textarea>
+                    </div>
+                    <div class="row">
+                        <div class='col-sm-4'>
+                            <div class="form-group">
+                                <label for="content">
+                                    <h1>选择提醒时间：</h1>
+                                </label>
+                                <!--指定 date标记-->
+                                <div class='input-group date' id='startTime'>
+                                    <input type='button' class="form-control" v-model="remindTime" />
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-block" @click="addToDo">提交</button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+        <footer>
+            <p>machooo@qq.com</p>
+        </footer>
+    </div>
+
+    <script type="text/javascript">
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                uuid: "",
+                title: "",
+                text: "",
+                remindTime: "",
+            },
+            mounted: function () {
+                var url = location.search; //获取url中"?"符后的字串
+                var theRequest = new Object();
+                if (url.indexOf("?") != -1) {
+                    var str = url.substr(1);
+                    strs = str.split("&");
+                    for (var i = 0; i < strs.length; i++) {
+                        theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                    }
+                }
+                this.uuid = theRequest.uuid
+                console.log(this.uuid);
+
+                window.onload = function () {
+                    $('#startTime').datetimepicker({
+                        language: "zh-CN",
+                        autoclose: true, //选中之后自动隐藏日期选择框
+                        format: "yyyy-mm-dd hh:mm"
+                        // format: "yyyy年 m月 dd日 p HH:ii",
+                    });
+                    //设置开始时间
+                    $('#startTime').datetimepicker('setStartDate', new Date());
+                };
+            },
+            methods: {
+
+                addToDo: async function () {
+                    this.remindTime = $("#startTime").find("input").val();
+                    console.log(this.remindTime)
+                    await this.run()
+                },
+                run: function () {
+                    this.$http.post('/addToDo?uuid=' + this.uuid, {
+                        title: this.title,
+                        text: this.text,
+                        remindTime: this.remindTime,
+                    }).then(function (res) {
+                        alert("操作成功")
+                        window.location.href = "/web/schedule.html?uuid=" + this.uuid
+                    }, function (res) {
+                        alert("操作失败......\r\n" + res.body)
+                        // window.location.href = '/web/change.html?uuid=' + this.uuid
+                    })
+                },
+            },
+        })
+    </script>
+
+</body>
+
+</html>

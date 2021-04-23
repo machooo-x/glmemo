@@ -30,22 +30,38 @@
 
 <body>
     <div id="app">
-        <header>
-            <div class="header-container">
-                <div class="logo-box">
-                    <a :href="'/web/home.html?uuid=' + this.uuid"><img src="./image/login.png" alt="logo"title="回到主页面"></a>
-                </div>
-                <h1 class="title-text">美好生活备忘录</h1>
-                <div class="menu-box">
-                    <div class="btn-box">
-                        <a :href="'/web/change.html?uuid=' + this.uuid"><img src="./image/add.png" title="添加备忘"> </a>
+        <nav class="navbar navbar-inverse navbar-static-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-1">
+                        <div style="text-align: left;">
+                            <a :href="'/web/home.html?uuid=' + this.uuid"><img src="./image/login.png" alt="logo"
+                                    title="回到主页面"></a>
+                        </div>
                     </div>
-                    <div class="btn-box">
-                        <a href="/web/login.html"><img src="./image/logout.png" title="注销账号"> </a>
+                    <div class="col-md-3">
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                            <ul class="nav navbar-nav">
+                                <li class="active"><a :href="'/web/home.html?uuid=' + this.uuid">备忘文案</a></li>
+                                <li><a :href="'/web/schedule.html?uuid=' + this.uuid">待办事项</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="sys-name" style="text-align: center; font-size: 26px; line-height:50px ;margin-bottom: 0px;   color: rgb(195, 201, 202);
+                               font-family: Arial, Helvetica, sans-serif;">美好生活备忘录</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="text-align: right;">
+                            <a :href="'/web/change.html?uuid=' + this.uuid"><img src="./image/add.png" title="添加备忘">
+                            </a>
+                            <a href="/web/login.html"><img src="./image/logout.png" title="退出账号"> </a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </header>
+        </nav>
+
 
         <section>
             <div class="container-fluid">
@@ -125,7 +141,7 @@
                 records: [],
                 tags: [],
                 paramstr: "",
-                netip:"",
+                netip: "",
             },
 
             mounted: function () {
@@ -173,7 +189,7 @@
                     this.$http.get('/querybytag?uuid=' + this.uuid + '&tagname=' + tagname).then(function (
                             res) {
                             this.records = res.body
-                            if (this.records.length==0){
+                            if (this.records.length == 0) {
                                 alert("未查询到相关记录，将返回主页面")
                                 window.location.href = "/web/home.html?uuid=" + this.uuid;
                             }
@@ -187,7 +203,7 @@
                         function (
                             res) {
                             this.records = res.body
-                            if (this.records.length==0){
+                            if (this.records.length == 0) {
                                 alert("未查询到相关记录，将返回主页面")
                                 window.location.href = "/web/home.html?uuid=" + this.uuid;
                             }

@@ -11,7 +11,7 @@ var GLMEMO *ini.File
 
 func init() {
 	var err error
-	GLMEMO, err = ini.Load("config.ini")
+	GLMEMO, err = ini.Load("./bin/config.ini")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 	}

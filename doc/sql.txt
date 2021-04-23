@@ -1,0 +1,8 @@
+删除该项目下所有表，需要重复执行几次
+
+DROP TABLE manager;                   
+DROP TABLE record;                    
+DROP TABLE schedule;                  
+DROP TABLE tag;                       
+DROP TABLE temp_record;               
+DROP TABLE user; 

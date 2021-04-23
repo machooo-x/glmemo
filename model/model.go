@@ -11,10 +11,12 @@ package model
 
 // User ...
 type User struct {
-	UUID string `json:"uuid"`
-	Date string `json:"date"`
-	Name string `json:"name"`
-	Pwd  string `json:"pwd"`
+	UUID     string `json:"uuid"`
+	Name     string `json:"name"`
+	Pwd      string `json:"pwd"`
+	Mailbox  string `json:"mailbox"`
+	RegTime  string `json:"regTime"`
+	LastTime string `json:"lastTime"`
 }
 
 // Record ...
@@ -35,4 +37,15 @@ type Tag struct {
 	ID      int    `json:"id"`
 	TagName string `json:"tagname"`
 	Sum     int    `json:"sum"`
+}
+
+// ToDo ...
+type ToDo struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Text        string `json:"text"`
+	UserID      string `json:"userID"`
+	UserMailbox string `json:"userMailbox"`
+	RegTime     string `json:"regTime"`
+	RemindTime  string `json:"remindTime"`
 }

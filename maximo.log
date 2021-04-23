@@ -1,290 +1,91 @@
-[91m[2021-04-06 13:07:48.408] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:09:00.184] service.go:646 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:09:09.536] service.go:646 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:10:24.852] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:10:25.532] service.go:646 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:10:54.136] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:10:54.792] service.go:646 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:11:18.218] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:11:18.737] service.go:646 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:11:48.001] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:11:48.566] service.go:646 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:12:26.572] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:12:27.224] service.go:646 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:14:04.134] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:14:05.163] service.go:646 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:14:11.075] service.go:646 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:14:24.720] service.go:527 [0m[32muploadfile 请求
-[0m[91m[2021-04-06 13:14:24.722] service.go:530 [0m[32m6fd4a6e5-08bf-4cd5-ac84-9fa2a4392a2a
-[0m[91m[2021-04-06 13:14:37.494] service.go:527 [0m[32muploadfile 请求
-[0m[91m[2021-04-06 13:14:37.495] service.go:530 [0m[32m6fd4a6e5-08bf-4cd5-ac84-9fa2a4392a2a
-[0m[91m[2021-04-06 13:14:37.497] service.go:545 [0m[32mproxy.png
-[0m[91m[2021-04-06 13:14:39.531] service.go:289 [0m[32m6fd4a6e5-08bf-4cd5-ac84-9fa2a4392a2a 9c6fcc9d-6b9e-4232-9ee1-6fcfe4f644d4
-[0m[91m[2021-04-06 13:14:39.532] service.go:306 [0m[32m&{wwwwwwwwwww wohenkuaile   ~~~~~~~~ 其它 data/6fd4a6e5-08bf-4cd5-ac84-9fa2a4392a2a/1617686077/proxy.png proxy.png}
-[0m[91m[2021-04-06 13:14:39.533] service.go:386 [0m[91msql: expected 16 arguments, got 18
-[0m[91m[2021-04-06 13:15:55.966] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:16:01.862] service.go:646 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:18:29.005] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:18:38.096] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:18:50.634] service.go:649 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:18:53.935] service.go:649 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:18:55.425] service.go:289 [0m[32md5b093a5-3435-480e-9cb8-4ad53fcd09a6 e09124cc-2623-4b3e-aacd-6e3386ae6704
-[0m[91m[2021-04-06 13:18:55.426] service.go:306 [0m[32m&{1 1 其它  }
-[0m[91m[2021-04-06 13:18:55.431] service.go:392 [0m[32m&{1 1 其它  }
-[0m[91m[2021-04-06 13:19:02.110] service.go:649 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:19:48.122] service.go:649 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:19:50.008] service.go:289 [0m[32md5b093a5-3435-480e-9cb8-4ad53fcd09a6 15e43e1f-5423-43e3-91d8-c266c78303bd
-[0m[91m[2021-04-06 13:19:50.010] service.go:306 [0m[32m&{2 2 其它  }
-[0m[91m[2021-04-06 13:19:50.011] service.go:372 [0m[91msql: expected 16 arguments, got 17
-[0m[91m[2021-04-06 13:19:58.321] service.go:289 [0m[32md5b093a5-3435-480e-9cb8-4ad53fcd09a6 15e43e1f-5423-43e3-91d8-c266c78303bd
-[0m[91m[2021-04-06 13:19:58.323] service.go:306 [0m[32m&{2 2 其它  }
-[0m[91m[2021-04-06 13:19:58.324] service.go:372 [0m[91msql: expected 16 arguments, got 17
-[0m[91m[2021-04-06 13:20:00.658] service.go:649 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:20:03.205] service.go:649 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:25:26.006] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:25:27.431] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:25:27.968] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:25:28.825] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:25:37.461] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:25:39.783] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:25:45.488] service.go:542 [0m[32muploadfile 请求
-[0m[91m[2021-04-06 13:25:45.489] service.go:545 [0m[32m7edcde6e-7b80-49f3-a574-f459d32b4537
-[0m[91m[2021-04-06 13:25:45.498] service.go:560 [0m[32mc386a3177dbcd4d5267e4712c161f60c.jpg
-[0m[91m[2021-04-06 13:25:46.101] service.go:293 [0m[32m7edcde6e-7b80-49f3-a574-f459d32b4537 94dab87a-dcae-412f-bc06-6bca194c1a08
-[0m[91m[2021-04-06 13:25:46.102] service.go:310 [0m[32m&{q q 其它  }
-[0m[91m[2021-04-06 13:25:47.128] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:25:49.741] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:25:50.965] service.go:293 [0m[32m7edcde6e-7b80-49f3-a574-f459d32b4537 94dab87a-dcae-412f-bc06-6bca194c1a08
-[0m[91m[2021-04-06 13:25:50.967] service.go:310 [0m[32m&{q q 其它  }
-[0m[91m[2021-04-06 13:25:50.969] service.go:396 [0m[32m&{q q 其它  }
-[0m[91m[2021-04-06 13:25:51.936] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:26:02.642] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:26:04.769] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:26:06.986] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 13:26:06.988] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:26:12.857] service.go:542 [0m[32muploadfile 请求
-[0m[91m[2021-04-06 13:26:12.858] service.go:545 [0m[32m7edcde6e-7b80-49f3-a574-f459d32b4537
-[0m[91m[2021-04-06 13:26:12.875] service.go:560 [0m[32mc386a3177dbcd4d5267e4712c161f60c.jpg
-[0m[91m[2021-04-06 13:26:15.229] service.go:293 [0m[32m7edcde6e-7b80-49f3-a574-f459d32b4537 94dab87a-dcae-412f-bc06-6bca194c1a08
-[0m[91m[2021-04-06 13:26:15.231] service.go:310 [0m[32m&{q q 其它 data/7edcde6e-7b80-49f3-a574-f459d32b4537/1617686772/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-06 13:26:16.342] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:26:18.149] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:26:19.795] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:26:21.532] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 13:26:21.533] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:26:21.534] service.go:207 [0m[32mc386a3177dbcd4d5267e4712c161f60c.jpg
-[0m[91m[2021-04-06 13:26:22.732] service.go:293 [0m[32m7edcde6e-7b80-49f3-a574-f459d32b4537 94dab87a-dcae-412f-bc06-6bca194c1a08
-[0m[91m[2021-04-06 13:26:22.733] service.go:310 [0m[32m&{q q 其它 data/7edcde6e-7b80-49f3-a574-f459d32b4537/1617686772/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-06 13:26:22.736] service.go:396 [0m[32m&{q q 其它 data/7edcde6e-7b80-49f3-a574-f459d32b4537/1617686772/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-06 13:26:23.606] service.go:661 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:29:39.780] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:29:45.837] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:29:55.544] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:29:57.734] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:30:02.465] service.go:543 [0m[32muploadfile 请求
-[0m[91m[2021-04-06 13:30:02.466] service.go:546 [0m[32m83add9ab-c6e1-4fe8-ac9f-3daec626281e
-[0m[91m[2021-04-06 13:30:02.476] service.go:561 [0m[32mc386a3177dbcd4d5267e4712c161f60c.jpg
-[0m[91m[2021-04-06 13:30:04.757] service.go:293 [0m[32m83add9ab-c6e1-4fe8-ac9f-3daec626281e f79e4679-1898-4aa4-bdba-08adcb9390da
-[0m[91m[2021-04-06 13:30:04.765] service.go:310 [0m[32m&{w w 其它 data/83add9ab-c6e1-4fe8-ac9f-3daec626281e/1617687002/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-06 13:30:04.788] service.go:397 [0m[32m&{w w 其它 data/83add9ab-c6e1-4fe8-ac9f-3daec626281e/1617687002/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-06 13:30:05.734] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:30:08.841] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:30:14.652] service.go:543 [0m[32muploadfile 请求
-[0m[91m[2021-04-06 13:30:14.653] service.go:546 [0m[32m83add9ab-c6e1-4fe8-ac9f-3daec626281e
-[0m[91m[2021-04-06 13:30:14.677] service.go:561 [0m[32mtrailer.mp4
-[0m[91m[2021-04-06 13:30:16.574] service.go:293 [0m[32m83add9ab-c6e1-4fe8-ac9f-3daec626281e 62bc166b-2017-4a49-b1f8-d905ad5c2581
-[0m[91m[2021-04-06 13:30:16.575] service.go:310 [0m[32m&{a a 其它 data/83add9ab-c6e1-4fe8-ac9f-3daec626281e/1617687014/trailer.mp4 trailer.mp4}
-[0m[91m[2021-04-06 13:30:16.577] service.go:397 [0m[32m&{a a 其它 data/83add9ab-c6e1-4fe8-ac9f-3daec626281e/1617687014/trailer.mp4 trailer.mp4}
-[0m[91m[2021-04-06 13:30:17.795] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:30:25.155] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 13:30:25.157] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:30:27.140] service.go:293 [0m[32m83add9ab-c6e1-4fe8-ac9f-3daec626281e 62bc166b-2017-4a49-b1f8-d905ad5c2581
-[0m[91m[2021-04-06 13:30:27.141] service.go:310 [0m[32m&{a a 其它  }
-[0m[91m[2021-04-06 13:30:28.260] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:30:36.166] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:30:36.166] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 13:30:37.436] service.go:293 [0m[32m83add9ab-c6e1-4fe8-ac9f-3daec626281e 62bc166b-2017-4a49-b1f8-d905ad5c2581
-[0m[91m[2021-04-06 13:30:37.437] service.go:310 [0m[32m&{a a 其它  }
-[0m[91m[2021-04-06 13:30:37.441] service.go:397 [0m[32m&{a a 其它  }
-[0m[91m[2021-04-06 13:30:38.520] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:30:51.699] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:30:53.113] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:30:56.517] service.go:293 [0m[32m83add9ab-c6e1-4fe8-ac9f-3daec626281e 10ede3a9-b662-4e7d-a7c3-d5f23272d77a
-[0m[91m[2021-04-06 13:30:56.518] service.go:310 [0m[32m&{w w 其它  }
-[0m[91m[2021-04-06 13:30:56.522] service.go:397 [0m[32m&{w w 其它  }
-[0m[91m[2021-04-06 13:30:57.462] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:30:59.954] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 13:30:59.954] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:31:04.630] service.go:543 [0m[32muploadfile 请求
-[0m[91m[2021-04-06 13:31:04.631] service.go:546 [0m[32m83add9ab-c6e1-4fe8-ac9f-3daec626281e
-[0m[91m[2021-04-06 13:31:04.635] service.go:561 [0m[32mc386a3177dbcd4d5267e4712c161f60c.jpg
-[0m[91m[2021-04-06 13:31:05.716] service.go:293 [0m[32m83add9ab-c6e1-4fe8-ac9f-3daec626281e 10ede3a9-b662-4e7d-a7c3-d5f23272d77a
-[0m[91m[2021-04-06 13:31:05.716] service.go:310 [0m[32m&{w w 其它 data/83add9ab-c6e1-4fe8-ac9f-3daec626281e/1617687064/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-06 13:31:07.128] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:31:10.162] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 13:31:10.163] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:31:10.164] service.go:207 [0m[32mc386a3177dbcd4d5267e4712c161f60c.jpg
-[0m[91m[2021-04-06 13:31:11.621] service.go:293 [0m[32m83add9ab-c6e1-4fe8-ac9f-3daec626281e 10ede3a9-b662-4e7d-a7c3-d5f23272d77a
-[0m[91m[2021-04-06 13:31:11.622] service.go:310 [0m[32m&{w w 其它 data/83add9ab-c6e1-4fe8-ac9f-3daec626281e/1617687064/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-06 13:31:11.625] service.go:397 [0m[32m&{w w 其它 data/83add9ab-c6e1-4fe8-ac9f-3daec626281e/1617687064/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-06 13:31:12.706] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:31:30.899] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 13:38:43.900] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 13:38:44.550] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 14:22:33.605] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 14:23:45.354] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 16:02:21.853] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 16:03:11.663] service.go:543 [0m[32muploadfile 请求
-[0m[91m[2021-04-06 16:03:11.664] service.go:546 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f
-[0m[91m[2021-04-06 16:03:11.665] service.go:561 [0m[32mtimg.jpg
-[0m[91m[2021-04-06 16:03:14.285] service.go:293 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f cbedd860-2576-4b32-8d6d-01cb5ee0e935
-[0m[91m[2021-04-06 16:03:14.287] service.go:310 [0m[32m&{毕业设计相关 毕业设计的代码已完成！ 学习 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617696191/timg.jpg timg.jpg}
-[0m[91m[2021-04-06 16:03:14.290] service.go:397 [0m[32m&{毕业设计相关 毕业设计的代码已完成！ 学习 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617696191/timg.jpg timg.jpg}
-[0m[91m[2021-04-06 16:03:15.526] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 16:03:25.843] service.go:597 [0m[36mcbedd860-2576-4b32-8d6d-01cb5ee0e935
-[0m[91m[2021-04-06 16:03:30.710] service.go:607 [0m[36m4fc9d652-a548-44c9-8997-4b5c47b383a7
-[0m[91m[2021-04-06 16:03:31.019] service.go:619 [0m[36mcbedd860-2576-4b32-8d6d-01cb5ee0e935
-[0m[91m[2021-04-06 19:04:47.236] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 19:04:47.236] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 19:04:49.760] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 19:40:22.430] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 19:40:25.092] service.go:293 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f ffcfcd73-7f67-4fb8-8b24-9dfa42630dec
-[0m[91m[2021-04-06 19:40:25.092] service.go:310 [0m[32m&{2 2 其它  }
-[0m[91m[2021-04-06 19:40:25.096] service.go:397 [0m[32m&{2 2 其它  }
-[0m[91m[2021-04-06 19:40:26.184] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 19:40:29.354] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 19:40:29.356] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 19:40:43.021] service.go:293 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f cbedd860-2576-4b32-8d6d-01cb5ee0e935
-[0m[91m[2021-04-06 19:40:43.025] service.go:310 [0m[32m&{毕业设计相关 毕业设计的代码已完成！
-经修改， 学习 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617696191/timg.jpg timg.jpg}
-[0m[91m[2021-04-06 19:40:43.035] service.go:397 [0m[32m&{毕业设计相关 毕业设计的代码已完成！
-经修改， 学习 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617696191/timg.jpg timg.jpg}
-[0m[91m[2021-04-06 19:40:44.913] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 19:40:46.571] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 19:52:33.275] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 19:52:36.121] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 19:56:26.187] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 19:56:26.187] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 19:56:29.513] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:34:51.523] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:46:21.744] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:48:20.927] service.go:293 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f a9aa36c7-6ca9-4310-903d-5917009da72b
-[0m[91m[2021-04-06 20:48:20.928] service.go:310 [0m[32m&{1 1 其它  }
-[0m[91m[2021-04-06 20:48:22.069] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:48:58.381] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:49:02.544] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:52:22.290] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:52:33.594] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:54:57.955] service.go:597 [0m[36mcbedd860-2576-4b32-8d6d-01cb5ee0e935
-[0m[91m[2021-04-06 20:56:01.718] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:56:06.226] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:58:13.536] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:58:19.283] service.go:293 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f f0bd422d-5b23-4fed-8c81-6e6f64120fce
-[0m[91m[2021-04-06 20:58:19.284] service.go:310 [0m[32m&{asdada asdadasdadasdsa 其它  }
-[0m[91m[2021-04-06 20:58:19.287] service.go:397 [0m[32m&{asdada asdadasdadasdsa 其它  }
-[0m[91m[2021-04-06 20:58:20.325] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 20:58:23.000] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 20:58:23.000] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:42:59.396] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:02.316] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 21:43:02.316] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:04.491] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:05.509] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:08.721] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:09.919] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:12.766] service.go:293 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f 94c3e90d-a4ac-48e6-8896-de15f52b704c
-[0m[91m[2021-04-06 21:43:12.768] service.go:310 [0m[32m&{2 2 其它  }
-[0m[91m[2021-04-06 21:43:13.692] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:14.634] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:16.730] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:17.659] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:24.358] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:26.650] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 21:43:26.653] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:28.916] service.go:293 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f f0bd422d-5b23-4fed-8c81-6e6f64120fce
-[0m[91m[2021-04-06 21:43:28.918] service.go:310 [0m[32m&{asdada 1 其它  }
-[0m[91m[2021-04-06 21:43:29.902] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:31.633] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 21:43:31.633] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:33.901] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:43:35.908] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 21:43:35.908] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:48:45.289] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:48:49.105] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 21:48:49.106] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:48:53.419] service.go:293 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f f0bd422d-5b23-4fed-8c81-6e6f64120fce
-[0m[91m[2021-04-06 21:48:53.420] service.go:310 [0m[32m&{asdada asdadas 其它  }
-[0m[91m[2021-04-06 21:48:54.456] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:48:56.429] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 21:48:56.429] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:48:57.602] service.go:293 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f f0bd422d-5b23-4fed-8c81-6e6f64120fce
-[0m[91m[2021-04-06 21:48:57.602] service.go:310 [0m[32m&{asdada asdadas 其它  }
-[0m[91m[2021-04-06 21:48:57.606] service.go:397 [0m[32m&{asdada asdadas 其它  }
-[0m[91m[2021-04-06 21:48:58.715] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 21:49:00.418] service.go:178 [0m[32mmark query temp
-[0m[91m[2021-04-06 21:49:00.420] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-06 22:17:44.641] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 22:18:18.176] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 22:18:31.405] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 22:20:14.262] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-06 23:17:53.705] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-07 21:15:51.494] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-07 21:58:44.473] service.go:662 [0m[32mmark query tag
-[0m[91m[2021-04-07 21:59:32.992] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-07 21:59:33.479] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 22:09:01.108] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 22:09:16.293] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 22:09:24.420] service.go:175 [0m[32mmark query temp
-[0m[91m[2021-04-07 22:09:24.421] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 22:10:18.096] service.go:498 [0m[32muploadfile 请求
-[0m[91m[2021-04-07 22:10:18.097] service.go:501 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f
-[0m[91m[2021-04-07 22:10:18.128] service.go:516 [0m[32mc386a3177dbcd4d5267e4712c161f60c.jpg
-[0m[91m[2021-04-07 22:10:21.382] service.go:290 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f f0bd422d-5b23-4fed-8c81-6e6f64120fce
-[0m[91m[2021-04-07 22:10:21.383] service.go:307 [0m[32m&{美好生活备忘录！ 美好生活从使用美好生活备忘录开始~ 生活 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617804618/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-07 22:10:21.390] service.go:394 [0m[32m&{美好生活备忘录！ 美好生活从使用美好生活备忘录开始~ 生活 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617804618/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-07 22:10:22.651] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 22:10:32.426] service.go:175 [0m[32mmark query temp
-[0m[91m[2021-04-07 22:10:32.429] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 22:10:39.238] service.go:498 [0m[32muploadfile 请求
-[0m[91m[2021-04-07 22:10:39.240] service.go:501 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f
-[0m[91m[2021-04-07 22:10:39.287] service.go:516 [0m[32mtrailer.mp4
-[0m[91m[2021-04-07 22:10:41.723] service.go:290 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f cbedd860-2576-4b32-8d6d-01cb5ee0e935
-[0m[91m[2021-04-07 22:10:41.725] service.go:307 [0m[32m&{毕业设计相关 毕业设计的代码已完成！
-经修改， 学习 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617804639/trailer.mp4 trailer.mp4}
-[0m[91m[2021-04-07 22:10:41.738] service.go:394 [0m[32m&{毕业设计相关 毕业设计的代码已完成！
-经修改， 学习 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617804639/trailer.mp4 trailer.mp4}
-[0m[91m[2021-04-07 22:10:43.188] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 22:10:49.099] service.go:175 [0m[32mmark query temp
-[0m[91m[2021-04-07 22:10:49.100] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 22:10:49.739] service.go:290 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f f0bd422d-5b23-4fed-8c81-6e6f64120fce
-[0m[91m[2021-04-07 22:10:49.740] service.go:307 [0m[32m&{美好生活备忘录！ 美好生活从使用美好生活备忘录开始~ 生活 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617804618/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-07 22:10:49.749] service.go:394 [0m[32m&{美好生活备忘录！ 美好生活从使用美好生活备忘录开始~ 生活 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617804618/c386a3177dbcd4d5267e4712c161f60c.jpg c386a3177dbcd4d5267e4712c161f60c.jpg}
-[0m[91m[2021-04-07 22:10:50.955] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 22:26:06.920] service.go:175 [0m[32mmark query temp
-[0m[91m[2021-04-07 22:26:06.922] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 22:26:25.762] service.go:290 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f cbedd860-2576-4b32-8d6d-01cb5ee0e935
-[0m[91m[2021-04-07 22:26:25.763] service.go:307 [0m[32m&{毕业设计相关 毕业设计的代码非常完美！ 学习 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617804639/trailer.mp4 trailer.mp4}
-[0m[91m[2021-04-07 22:26:25.765] service.go:394 [0m[32m&{毕业设计相关 毕业设计的代码非常完美！ 学习 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617804639/trailer.mp4 trailer.mp4}
-[0m[91m[2021-04-07 22:26:26.945] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 23:42:11.051] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-07 23:43:02.704] service.go:498 [0m[32muploadfile 请求
-[0m[91m[2021-04-07 23:43:02.706] service.go:501 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f
-[0m[91m[2021-04-07 23:43:02.709] service.go:516 [0m[32mtimg.jpg
-[0m[91m[2021-04-07 23:43:56.622] service.go:290 [0m[32m20854cc9-4eb2-45ed-a706-e0d55515383f aea532b0-2280-447e-8bb4-4268e77ab061
-[0m[91m[2021-04-07 23:43:56.623] service.go:307 [0m[32m&{今日感想 学习使我感到快乐！ 我的收藏 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617810182/timg.jpg timg.jpg}
-[0m[91m[2021-04-07 23:43:56.625] service.go:394 [0m[32m&{今日感想 学习使我感到快乐！ 我的收藏 data/20854cc9-4eb2-45ed-a706-e0d55515383f/1617810182/timg.jpg timg.jpg}
-[0m[91m[2021-04-07 23:59:22.780] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-08 00:20:06.964] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-08 00:20:07.625] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-08 00:20:12.201] service.go:175 [0m[32mmark query temp
-[0m[91m[2021-04-08 00:20:12.205] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-08 00:28:57.985] service.go:617 [0m[32mmark query tag
-[0m[91m[2021-04-08 00:30:02.864] service.go:552 [0m[36maea532b0-2280-447e-8bb4-4268e77ab061
-[0m[91m[2021-04-08 00:30:30.973] service.go:562 [0m[36m4b095ede-bcd8-4301-b4b5-32fc005f8a1d
-[0m[91m[2021-04-08 00:30:31.284] service.go:574 [0m[36maea532b0-2280-447e-8bb4-4268e77ab061
-[0m[91m[2021-04-10 20:31:03.932] console.go:14 [0m[32mgood life memo 初始化中 ...
-[0m[91m[2021-04-10 20:31:17.023] service.go:615 [0m[32mmark query tag
-[0m[91m[2021-04-10 20:31:29.901] service.go:615 [0m[32mmark query tag
-[0m[91m[2021-04-10 20:32:05.943] service.go:615 [0m[32mmark query tag
-[0m[91m[2021-04-10 20:32:09.954] service.go:615 [0m[32mmark query tag
+[91m[2021-04-23 17:29:25.899] console.go:14 [0m[32mgood life memo 初始化中 ...
+[0m[91m[2021-04-23 17:30:29.326] service.go:106 [0m[91mError 1366: Incorrect string value: '\xE6\x88\x91\xE7\x9A\x84...' for column 'tag_name' at row 1
+[0m[91m[2021-04-23 17:30:48.535] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:30:56.084] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:31:02.039] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:31:08.537] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:31:14.187] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:31:16.753] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:31:40.646] service.go:500 [0m[32muploadfile 请求
+[0m[91m[2021-04-23 17:31:40.646] service.go:503 [0m[32m8870fbda-f9b0-4809-af40-03e9d2be4181
+[0m[91m[2021-04-23 17:31:44.655] service.go:518 [0m[32mtrailer.mp4
+[0m[91m[2021-04-23 17:31:44.897] service.go:500 [0m[32muploadfile 请求
+[0m[91m[2021-04-23 17:31:44.897] service.go:503 [0m[32m8870fbda-f9b0-4809-af40-03e9d2be4181
+[0m[91m[2021-04-23 17:31:47.834] service.go:294 [0m[32m8870fbda-f9b0-4809-af40-03e9d2be4181 1e75e18d-c76c-49c5-8365-b3ba778596dd
+[0m[91m[2021-04-23 17:31:47.839] service.go:311 [0m[32m&{非常开心！ 终于在服务器上部署好了！ 其它 data/8870fbda-f9b0-4809-af40-03e9d2be4181/1619170304/trailer.mp4 trailer.mp4}
+[0m[91m[2021-04-23 17:31:47.840] service.go:394 [0m[91mError 1366: Incorrect string value: '\xE9\x9D\x9E\xE5\xB8\xB8...' for column 'title' at row 1
+[0m[91m[2021-04-23 17:31:48.830] service.go:518 [0m[32mtrailer.mp4
+[0m[91m[2021-04-23 17:31:50.078] service.go:294 [0m[32m8870fbda-f9b0-4809-af40-03e9d2be4181 1e75e18d-c76c-49c5-8365-b3ba778596dd
+[0m[91m[2021-04-23 17:31:50.078] service.go:311 [0m[32m&{非常开心！ 终于在服务器上部署好了！ 其它 data/8870fbda-f9b0-4809-af40-03e9d2be4181/1619170304/trailer.mp4 trailer.mp4}
+[0m[91m[2021-04-23 17:31:50.078] service.go:394 [0m[91mError 1366: Incorrect string value: '\xE9\x9D\x9E\xE5\xB8\xB8...' for column 'title' at row 1
+[0m[91m[2021-04-23 17:32:01.033] service.go:500 [0m[32muploadfile 请求
+[0m[91m[2021-04-23 17:32:01.033] service.go:503 [0m[32m8870fbda-f9b0-4809-af40-03e9d2be4181
+[0m[91m[2021-04-23 17:32:04.195] service.go:294 [0m[32m8870fbda-f9b0-4809-af40-03e9d2be4181 1e75e18d-c76c-49c5-8365-b3ba778596dd
+[0m[91m[2021-04-23 17:32:04.198] service.go:311 [0m[32m&{非常开心！ 终于在服务器上部署好了！ 其它 data/8870fbda-f9b0-4809-af40-03e9d2be4181/1619170308/trailer.mp4 trailer.mp4}
+[0m[91m[2021-04-23 17:32:04.200] service.go:394 [0m[91mError 1366: Incorrect string value: '\xE9\x9D\x9E\xE5\xB8\xB8...' for column 'title' at row 1
+[0m[91m[2021-04-23 17:32:08.901] service.go:518 [0m[32mtrailer.mp4
+[0m[91m[2021-04-23 17:34:11.366] service.go:294 [0m[32m8870fbda-f9b0-4809-af40-03e9d2be4181 1e75e18d-c76c-49c5-8365-b3ba778596dd
+[0m[91m[2021-04-23 17:34:11.366] service.go:311 [0m[32m&{非常开心   。。。 终于在服务器上部署好了  其它 data/8870fbda-f9b0-4809-af40-03e9d2be4181/1619170308/trailer.mp4 trailer.mp4}
+[0m[91m[2021-04-23 17:34:11.369] service.go:394 [0m[91mError 1366: Incorrect string value: '\xE9\x9D\x9E\xE5\xB8\xB8...' for column 'title' at row 1
+[0m[91m[2021-04-23 17:34:15.110] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:34:18.756] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:34:23.339] service.go:294 [0m[32m8870fbda-f9b0-4809-af40-03e9d2be4181 377611ef-1ef3-4c65-a414-32a6cd9858fe
+[0m[91m[2021-04-23 17:34:23.339] service.go:311 [0m[32m&{1 1 其它  }
+[0m[91m[2021-04-23 17:34:23.341] service.go:394 [0m[91mError 1366: Incorrect string value: '\xE5\x85\xB6\xE5\xAE\x83' for column 'tag_name' at row 1
+[0m[91m[2021-04-23 17:34:46.474] service.go:790 [0m[32m&{1 1 2021-04-29 10:04 }
+[0m[91m[2021-04-23 17:34:52.235] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:34:55.307] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:34:59.523] service.go:294 [0m[32m8870fbda-f9b0-4809-af40-03e9d2be4181 b462181c-5347-49aa-a717-5e616216bfa8
+[0m[91m[2021-04-23 17:34:59.524] service.go:311 [0m[32m&{123 123 其它  }
+[0m[91m[2021-04-23 17:34:59.525] service.go:394 [0m[91mError 1366: Incorrect string value: '\xE5\x85\xB6\xE5\xAE\x83' for column 'tag_name' at row 1
+[0m[91m[2021-04-23 17:37:38.665] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:37:55.660] service.go:106 [0m[91mError 1366: Incorrect string value: '\xE6\x88\x91\xE7\x9A\x84...' for column 'tag_name' at row 1
+[0m[91m[2021-04-23 17:38:13.004] service.go:619 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:40:59.441] console.go:14 [0m[32mgood life memo 初始化中 ...
+[0m[91m[2021-04-23 17:41:20.071] service.go:104 [0m[32mc1757d63-fff2-4694-a15f-5a025ce2fe5f
+[0m[91m[2021-04-23 17:41:20.073] service.go:107 [0m[91mError 1366: Incorrect string value: '\xE6\x88\x91\xE7\x9A\x84...' for column 'tag_name' at row 1
+[0m[91m[2021-04-23 17:45:41.797] console.go:14 [0m[32mgood life memo 初始化中 ...
+[0m[91m[2021-04-23 17:48:51.519] service.go:104 [0m[32m2bece7e2-8c3e-439a-a05b-3d8aa17ec554
+[0m[91m[2021-04-23 17:48:59.444] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:49:03.198] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:49:24.060] service.go:501 [0m[32muploadfile 请求
+[0m[91m[2021-04-23 17:49:24.060] service.go:504 [0m[32m2bece7e2-8c3e-439a-a05b-3d8aa17ec554
+[0m[91m[2021-04-23 17:49:29.765] service.go:519 [0m[32mtrailer.mp4
+[0m[91m[2021-04-23 17:49:42.654] service.go:295 [0m[32m2bece7e2-8c3e-439a-a05b-3d8aa17ec554 ff049013-4d15-4d94-86c7-d609f10ca4f7
+[0m[91m[2021-04-23 17:49:42.654] service.go:312 [0m[32m&{非常开心 远程环境部署成功！ 其它  }
+[0m[91m[2021-04-23 17:49:42.655] service.go:398 [0m[32m&{非常开心 远程环境部署成功！ 其它  }
+[0m[91m[2021-04-23 17:49:45.504] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:49:50.446] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:49:57.326] service.go:179 [0m[32mmark query temp
+[0m[91m[2021-04-23 17:49:57.328] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:50:09.564] service.go:501 [0m[32muploadfile 请求
+[0m[91m[2021-04-23 17:50:09.564] service.go:504 [0m[32m2bece7e2-8c3e-439a-a05b-3d8aa17ec554
+[0m[91m[2021-04-23 17:50:09.684] service.go:519 [0m[32mtimg.jpg
+[0m[91m[2021-04-23 17:50:11.985] service.go:295 [0m[32m2bece7e2-8c3e-439a-a05b-3d8aa17ec554 ff049013-4d15-4d94-86c7-d609f10ca4f7
+[0m[91m[2021-04-23 17:50:11.986] service.go:312 [0m[32m&{非常开心 远程环境部署成功！ 学习 data/2bece7e2-8c3e-439a-a05b-3d8aa17ec554/1619171409/timg.jpg timg.jpg}
+[0m[91m[2021-04-23 17:50:11.988] service.go:398 [0m[32m&{非常开心 远程环境部署成功！ 学习 data/2bece7e2-8c3e-439a-a05b-3d8aa17ec554/1619171409/timg.jpg timg.jpg}
+[0m[91m[2021-04-23 17:50:15.501] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:50:24.055] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:50:56.095] console.go:14 [0m[32mgood life memo 初始化中 ...
+[0m[91m[2021-04-23 17:50:58.979] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:51:09.153] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:51:11.750] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:51:24.099] service.go:501 [0m[32muploadfile 请求
+[0m[91m[2021-04-23 17:51:24.099] service.go:504 [0m[32m2bece7e2-8c3e-439a-a05b-3d8aa17ec554
+[0m[91m[2021-04-23 17:51:28.349] service.go:519 [0m[32mtrailer.mp4
+[0m[91m[2021-04-23 17:51:43.795] service.go:295 [0m[32m2bece7e2-8c3e-439a-a05b-3d8aa17ec554 57803e5b-31af-4862-b861-81d625a8999a
+[0m[91m[2021-04-23 17:51:43.795] service.go:312 [0m[32m&{测试一下 非常棒， 其它  }
+[0m[91m[2021-04-23 17:51:47.230] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:51:50.830] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:53:43.032] console.go:14 [0m[32mgood life memo 初始化中 ...
+[0m[91m[2021-04-23 17:53:54.026] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:54:03.559] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:54:12.018] service.go:501 [0m[32muploadfile 请求
+[0m[91m[2021-04-23 17:54:12.019] service.go:504 [0m[32m2bece7e2-8c3e-439a-a05b-3d8aa17ec554
+[0m[91m[2021-04-23 17:54:16.061] service.go:519 [0m[32mtrailer.mp4
+[0m[91m[2021-04-23 17:54:19.446] service.go:295 [0m[32m2bece7e2-8c3e-439a-a05b-3d8aa17ec554 57803e5b-31af-4862-b861-81d625a8999a
+[0m[91m[2021-04-23 17:54:19.447] service.go:312 [0m[32m&{测试一下 非常棒， 其它 data/2bece7e2-8c3e-439a-a05b-3d8aa17ec554/1619171656/trailer.mp4 trailer.mp4}
+[0m[91m[2021-04-23 17:54:19.450] service.go:398 [0m[32m&{测试一下 非常棒， 其它 data/2bece7e2-8c3e-439a-a05b-3d8aa17ec554/1619171656/trailer.mp4 trailer.mp4}
+[0m[91m[2021-04-23 17:54:22.653] service.go:620 [0m[32mmark query tag
+[0m[91m[2021-04-23 17:55:14.045] service.go:791 [0m[32m&{回家提醒 提醒我自己做火车！ 2021-04-24 18:04 }
 [0m

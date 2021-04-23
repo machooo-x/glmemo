@@ -29,10 +29,12 @@ func init() {
 	sqlStmt := `
 		create table if not exists user (
 			uuid char(36) not null PRIMARY KEY,
-			reg_time int unsigned not null,
 			name varchar(20) not null,
 			pwd varchar(20) not null,
-			UNIQUE KEY name_idx (name));`
+			mailbox varchar(320) not null,
+			reg_time char(10) not null,
+			last_time char(10) not null,
+			UNIQUE KEY name_idx (name))charset utf8 collate utf8_general_ci;`
 	_, err = Mysql.Exec(sqlStmt)
 	if err != nil {
 		panic(err)
@@ -47,7 +49,7 @@ func init() {
 			sum int default 0,
 			PRIMARY KEY (id),
 			constraint foreign key(user_id) references user(uuid),
-			KEY user_id_and_tag_name_idx (user_id,tag_name));`
+			KEY user_id_and_tag_name_idx (user_id,tag_name))charset utf8 collate utf8_general_ci;`
 	_, err = Mysql.Exec(sqlStmt)
 	if err != nil {
 		fmt.Println(err)
@@ -67,9 +69,10 @@ func init() {
 		tag_name varchar(10) not null,
 		filename varchar(150),
 		filepath varchar(200),
+		status bool default 0,
 		PRIMARY KEY (id),
 		constraint foreign key(user_id) references user(uuid),
-		constraint foreign key(user_id,tag_name) references tag(user_id,tag_name));`
+		constraint foreign key(user_id,tag_name) references tag(user_id,tag_name))charset utf8 collate utf8_general_ci;`
 	_, err = Mysql.Exec(sqlStmt)
 	if err != nil {
 		panic(err)
@@ -89,7 +92,39 @@ func init() {
 		filepath varchar(200),
 		is_add_save bool not null,
 		PRIMARY KEY (record_id),
-		constraint foreign key(user_id) references user(uuid));`
+		constraint foreign key(user_id) references user(uuid),
+		constraint foreign key(user_id,tag_name) references tag(user_id,tag_name))charset utf8 collate utf8_general_ci;`
+	_, err = Mysql.Exec(sqlStmt)
+	if err != nil {
+		panic(err)
+	}
+
+	/* create manager */
+	sqlStmt = `
+		create table if not exists manager (
+		id char(36) not null PRIMARY KEY,
+		name varchar(20) not null,
+		pwd varchar(20) not null,
+		reg_time char(10) not null,
+		last_time char(10) not null,
+		UNIQUE KEY name_idx (name))charset utf8 collate utf8_general_ci;`
+	_, err = Mysql.Exec(sqlStmt)
+	if err != nil {
+		panic(err)
+	}
+
+	/* create schedule */
+	sqlStmt = `
+		create table if not exists schedule (
+		id char(36) not null,
+		title varchar(20) not null,
+		text varchar(1024) not null,
+		user_id char(36) not null,
+		user_mailbox varchar(320) not null,
+		reg_time char(10) not null,
+		remind_time char(10) not null,
+		PRIMARY KEY (id),
+		constraint foreign key(user_id) references user(uuid))charset utf8 collate utf8_general_ci;`
 	_, err = Mysql.Exec(sqlStmt)
 	if err != nil {
 		panic(err)
@@ -104,10 +139,11 @@ func init() {
 	// 			used int not null,
 	// 			status bool not null,
 	// 			PRIMARY KEY (user_id),
-	// 			constraint foreign key(user_id) references user(uuid));`
+	// 			constraint foreign key(user_id) references user(uuid))charset utf8 collate utf8_general_ci;`
 	// _, err = Mysql.Exec(sqlStmt)
 	// if err != nil {
 	// 	panic(err)
 	// }
 
 }
+
