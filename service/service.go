@@ -858,6 +858,30 @@ func addToDo(c echo.Context) (err error) {
 						if err := d.DialAndSend(m); err != nil {
 							syslog.Clog.Errorln(true)
 						}
+						
+
+						tx, err := database.Mysql.Begin()
+						defer func() {
+							if err != nil {
+								tx.Rollback()
+							} else {
+								if tx.Commit() != nil {
+									syslog.Clog.Errorln(true, err)
+									tx.Rollback()
+								}
+							}
+						}()
+						stmt, err := tx.Prepare("delete from schedule WHERE id = ?")
+						if err != nil {
+							syslog.Clog.Errorln(true, err)
+							return 
+						}
+						defer stmt.Close()
+						_, err = stmt.Exec(reqData.ToDoID)
+						if err != nil {
+							syslog.Clog.Errorln(true, err)
+							return 
+						}
 					}
 					close(sigh)
 					platform.ToDoList.Delete(reqData.ToDoID)
