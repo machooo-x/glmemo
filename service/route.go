@@ -31,5 +31,6 @@ func RegRouter(e *echo.Echo) {
 
 	e.DELETE("/delrecord", delRecord)
 	e.DELETE("/deltempsave", delTempSave)
+	e.DELETE("/delToDo", delToDo)
 
 }

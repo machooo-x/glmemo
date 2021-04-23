@@ -78,7 +78,7 @@
                             <li v-for="toDo in toDoList" class="list-group-item">
                                 <div class="panel panel-default">
                                     <div class="panel-heading">
-                                        <a :href="'/web/info.html?uuid=' + toDo.uuid + '&recordid=' + toDo.id">
+                                        <a href="#">
                                             <h3 class="panel-title">{{toDo.title}}</h3>
                                         </a>
                                     </div>
@@ -87,12 +87,17 @@
                                             <p style="font-style: italic;">创建时间&nbsp{{toDo.regTime}}</p>
                                         </div>
                                         <div id="date" >
-                                            <p>&nbsp&nbsp&nbsp提醒时间&nbsp{{toDo.remindTime}}</p>
+                                            <p style="font-style: italic;">&nbsp&nbsp&nbsp提醒时间&nbsp{{toDo.remindTime}}</p>
                                         </div>
                                         <div>
                                             <p class="sansserif"> {{toDo.text}}</p>
+                                            <div>
+                                            <button class="btn btn-derger btn-block" @click="delToDo(toDo.id)" style="float: right; width: 53px;"><span class="glyphicon glyphicon-trash"
+                                                aria-hidden="true"></span></button>
+                                            </div>
                                         </div>
                                     </div>
+                                    
                             </li>
                         </ul>
                     </div>
@@ -144,6 +149,15 @@
                         },
                         function (res) {
                             alert("获取待办事项信息有误，请稍后重试")
+                        });
+                },
+                delToDo: function (id) {
+                    this.$http.delete('/delToDo?toDoID=' + id).then(function () {
+                            alert("操作成功")
+                            window.location.href = "/web/schedule.html?uuid=" + this.uuid
+                        },
+                        function (res) {
+                            alert("删除备完有误，请稍后重试")
                         });
                 },
             },

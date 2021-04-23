@@ -12,11 +12,12 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+	"glmemo/platform"
 	"github.com/garyburd/redigo/redis"
 	"github.com/google/uuid"
 
 	"github.com/labstack/echo"
+	"gopkg.in/gomail.v2"
 )
 
 func login(c echo.Context) (err error) {
@@ -741,7 +742,7 @@ func getToDoList(c echo.Context) (err error) {
 		return c.String(http.StatusUnauthorized, "用户uuid不许为空")
 	}
 	toDoList := make([]*model.ToDo, 0)
-	stmt, err := database.Mysql.Prepare("select * from schedule where user_id = ? order by `reg_time`")
+	stmt, err := database.Mysql.Prepare("select * from schedule where user_id = ? order by `reg_time` desc")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
@@ -777,10 +778,13 @@ func addToDo(c echo.Context) (err error) {
 	}
 
 	type req struct { // 用于获取用户输入内容的参数
+		ToDoID string
+		UserID string`json:userID`
 		Title      string `json:"title"`
 		Text       string `json:"text"`
 		RemindTime string `json:"remindTime"`
 		Mailbox    string `json:"mailbox"`
+		RemindTimestamp int64
 	}
 	reqData := &req{}
 	err = c.Bind(&reqData)
@@ -789,6 +793,14 @@ func addToDo(c echo.Context) (err error) {
 		return err
 	}
 	syslog.Clog.Infoln(true, reqData)
+	//日期转化为时间戳
+	timeLayout := "2006-01-02 15:04"  //转化所需模板  
+	loc, _ := time.LoadLocation("Local")    //获取时区  
+	tmp, _ := time.ParseInLocation(timeLayout, reqData.RemindTime, loc) 
+	reqData.RemindTimestamp = tmp.Unix()    //转化为时间戳 类型是int64
+	reqData.ToDoID = uuid.New().String()
+
+	reqData.UserID=userID
 	if reqData.Title == "" || reqData.Text == "" || reqData.RemindTime == "" {
 		return c.String(http.StatusBadRequest, "标题、内容和提醒时间都不许为空")
 	}
@@ -807,26 +819,99 @@ func addToDo(c echo.Context) (err error) {
 	if result.Next() {
 		result.Scan(&reqData.Mailbox)
 	}
-	toDoID := uuid.New().String()
 	tx, err := database.Mysql.Begin() // 开启事务
-	defer func() {
+	defer func(reqData *req) {
 		if err != nil {
 			tx.Rollback() // 有错误则直接回滚，不向后进行操作
 		} else {
 			if tx.Commit() != nil { // 提交失败则回滚
 				syslog.Clog.Errorln(true, err)
 				tx.Rollback()
+			} else {
+				go func(reqData *req) {
+					syslog.Clog.Infoln(true,time.Duration(reqData.RemindTimestamp - time.Now().Unix())*1000000000)
+					sigh := make(chan struct{},1)
+					platform.ToDoList.Set(reqData.ToDoID,sigh)
+					syslog.Clog.Infoln(true,"已有待办个数",platform.ToDoList.Count())
+					select {
+					case <-sigh:
+					case <-time.After(time.Duration(reqData.RemindTimestamp - time.Now().Unix())*1000000000):
+						syslog.Clog.Infoln(true, reqData.RemindTimestamp)
+
+						// select{
+						m := gomail.NewMessage()
+
+						m.SetHeader("From", "glmemo@qq.com")
+						m.SetHeader("To", reqData.Mailbox)
+						//m.SetAddressHeader("Cc", "dan@example.com", "Dan")
+						m.SetHeader("Subject", "美好生活备忘录官方邮箱")
+						m.SetBody("text/html", fmt.Sprintf(`
+								<h1>来自美好生活备忘录里待办提醒~</h1>
+								<div style="color:#0000FF">
+									<h3>%s</h3>
+									<p>%s</p>
+								</div>
+								`, reqData.Title, reqData.Text))
+						//m.Attach("/home/Alex/lolcat.jpg")
+						d := gomail.NewDialer("smtp.qq.com", 587, "glmemo@qq.com", "xicaokstwgvbdbfj")
+						// Send the email to Bob, Cora and Dan.
+						if err := d.DialAndSend(m); err != nil {
+							syslog.Clog.Errorln(true)
+						}
+					}
+					close(sigh)
+					platform.ToDoList.Delete(reqData.ToDoID)
+					syslog.Clog.Infoln(true,"删除待办成功 [",reqData.ToDoID,"]")
+				}(reqData)
 			}
 		}
-	}()
+	}(reqData)
 	stmt, err = tx.Prepare("insert into schedule values(?,?,?,?,?,?,?)")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
 	}
 	defer stmt.Close()
-	time := time.Now().Unix()
-	_, err = stmt.Exec(toDoID, reqData.Title, reqData.Text, userID, reqData.Mailbox, time, time) // 在用户表中新建数据
+	now := time.Now().Unix()
+
+	_, err = stmt.Exec(reqData.ToDoID, reqData.Title, reqData.Text, userID, reqData.Mailbox, now, strconv.FormatInt(reqData.RemindTimestamp, 10)) // 在待办表中新建数据
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	return
+}
+
+
+func delToDo(c echo.Context) (err error) {
+	toDoID := c.QueryParam("toDoID")
+	if toDoID == "" {
+		return c.String(http.StatusUnauthorized, "删除的待办id不许为空")
+	}
+	if sighTemp:=platform.ToDoList.Get(toDoID);sighTemp!=nil{
+		sigh:=sighTemp.(chan struct{})
+		sigh<-struct{}{}
+	}else{
+		return nil
+	}
+	tx, err := database.Mysql.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			if tx.Commit() != nil {
+				syslog.Clog.Errorln(true, err)
+				tx.Rollback()
+			}
+		}
+	}()
+	stmt, err := tx.Prepare("delete from schedule WHERE id = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(toDoID)
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
