@@ -1,18 +1,20 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"glmemo/config"
 	"glmemo/helper/database"
 	"glmemo/helper/syslog"
 	"glmemo/model"
+	"glmemo/platform"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-	"glmemo/platform"
+
 	"github.com/garyburd/redigo/redis"
 	"github.com/google/uuid"
 
@@ -102,7 +104,7 @@ func regist(c echo.Context) (err error) {
 					return
 				}
 				defer stmt.Close()
-				syslog.Clog.Infoln(true,uuid)
+				syslog.Clog.Infoln(true, uuid)
 				_, err = stmt.Exec(uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid, uuid)
 				if err != nil {
 					syslog.Clog.Errorln(true, err)
@@ -320,7 +322,7 @@ func addRecord(c echo.Context) (err error) {
 		return c.String(http.StatusBadRequest, "内容不许为空")
 	}
 	tx, err := database.Mysql.Begin()
-	defer func(userID, recordID , isCommit , tagName, isAddSave,lastTag string) {
+	defer func(userID, recordID, isCommit, tagName, isAddSave, lastTag string) {
 		if err != nil { // 如果操作存在异常则事务回滚
 			tx.Rollback()
 		} else {
@@ -360,7 +362,7 @@ func addRecord(c echo.Context) (err error) {
 						syslog.Clog.Errorln(true, err)
 						return
 					}
-					if lastTag!=tagName&&isAddSave=="0"{
+					if lastTag != tagName && isAddSave == "0" {
 						stmt, err := tx.Prepare("UPDATE tag SET sum = sum+1 WHERE user_id = ? and tag_name = ?")
 						if err != nil {
 							syslog.Clog.Errorln(true, err)
@@ -372,7 +374,7 @@ func addRecord(c echo.Context) (err error) {
 							syslog.Clog.Errorln(true, err)
 							// return
 						}
-						syslog.Clog.Infoln(true,tagName,"++")
+						syslog.Clog.Infoln(true, tagName, "++")
 						stmt, err = tx.Prepare("UPDATE tag SET sum = sum-1 WHERE user_id = ? and tag_name = ?")
 						if err != nil {
 							syslog.Clog.Errorln(true, err)
@@ -384,14 +386,14 @@ func addRecord(c echo.Context) (err error) {
 							syslog.Clog.Errorln(true, err)
 							// return
 						}
-						syslog.Clog.Infoln(true,lastTag,"--")
+						syslog.Clog.Infoln(true, lastTag, "--")
 
 					}
 					return
 				}
 			}
 		}
-	}(userID, recordID, isCommit, reqData.TagName, isAddSave,lastTag)
+	}(userID, recordID, isCommit, reqData.TagName, isAddSave, lastTag)
 	var str string
 	// 如果是提交的话，将数据更新到文案表中   此处ON DUPLICATE KEY标志着如果存在则更新，不存在则添加
 	if isCommit == "1" {
@@ -807,12 +809,12 @@ func addToDo(c echo.Context) (err error) {
 	}
 
 	type req struct { // 用于获取用户输入内容的参数
-		ToDoID string
-		UserID string`json:userID`
-		Title      string `json:"title"`
-		Text       string `json:"text"`
-		RemindTime string `json:"remindTime"`
-		Mailbox    string `json:"mailbox"`
+		ToDoID          string
+		UserID          string `json:userID`
+		Title           string `json:"title"`
+		Text            string `json:"text"`
+		RemindTime      string `json:"remindTime"`
+		Mailbox         string `json:"mailbox"`
 		RemindTimestamp int64
 	}
 	reqData := &req{}
@@ -823,13 +825,13 @@ func addToDo(c echo.Context) (err error) {
 	}
 	syslog.Clog.Infoln(true, reqData)
 	//日期转化为时间戳
-	timeLayout := "2006-01-02 15:04"  //转化所需模板  
-	loc, _ := time.LoadLocation("Local")    //获取时区  
-	tmp, _ := time.ParseInLocation(timeLayout, reqData.RemindTime, loc) 
-	reqData.RemindTimestamp = tmp.Unix()    //转化为时间戳 类型是int64
+	timeLayout := "2006-01-02 15:04"     //转化所需模板
+	loc, _ := time.LoadLocation("Local") //获取时区
+	tmp, _ := time.ParseInLocation(timeLayout, reqData.RemindTime, loc)
+	reqData.RemindTimestamp = tmp.Unix() //转化为时间戳 类型是int64
 	reqData.ToDoID = uuid.New().String()
 
-	reqData.UserID=userID
+	reqData.UserID = userID
 	if reqData.Title == "" || reqData.Text == "" || reqData.RemindTime == "" {
 		return c.String(http.StatusBadRequest, "标题、内容和提醒时间都不许为空")
 	}
@@ -858,13 +860,13 @@ func addToDo(c echo.Context) (err error) {
 				tx.Rollback()
 			} else {
 				go func(reqData *req) {
-					syslog.Clog.Infoln(true,time.Duration(reqData.RemindTimestamp - time.Now().Unix())*1000000000)
-					sigh := make(chan struct{},1)
-					platform.ToDoList.Set(reqData.ToDoID,sigh)
-					syslog.Clog.Infoln(true,"已有待办个数",platform.ToDoList.Count())
+					syslog.Clog.Infoln(true, time.Duration(reqData.RemindTimestamp-time.Now().Unix())*1000000000)
+					sigh := make(chan struct{}, 1)
+					platform.ToDoList.Set(reqData.ToDoID, sigh)
+					syslog.Clog.Infoln(true, "已有待办个数", platform.ToDoList.Count())
 					select {
 					case <-sigh:
-					case <-time.After(time.Duration(reqData.RemindTimestamp - time.Now().Unix())*1000000000):
+					case <-time.After(time.Duration(reqData.RemindTimestamp-time.Now().Unix()) * 1000000000):
 						syslog.Clog.Infoln(true, reqData.RemindTimestamp)
 
 						// select{
@@ -901,18 +903,18 @@ func addToDo(c echo.Context) (err error) {
 						stmt, err := tx.Prepare("delete from schedule WHERE id = ?")
 						if err != nil {
 							syslog.Clog.Errorln(true, err)
-							return 
+							return
 						}
 						defer stmt.Close()
 						_, err = stmt.Exec(reqData.ToDoID)
 						if err != nil {
 							syslog.Clog.Errorln(true, err)
-							return 
+							return
 						}
 					}
 					close(sigh)
 					platform.ToDoList.Delete(reqData.ToDoID)
-					syslog.Clog.Infoln(true,"删除待办成功 [",reqData.ToDoID,"]")
+					syslog.Clog.Infoln(true, "删除待办成功 [", reqData.ToDoID, "]")
 				}(reqData)
 			}
 		}
@@ -933,16 +935,15 @@ func addToDo(c echo.Context) (err error) {
 	return
 }
 
-
 func delToDo(c echo.Context) (err error) {
 	toDoID := c.QueryParam("toDoID")
 	if toDoID == "" {
 		return c.String(http.StatusUnauthorized, "删除的待办id不许为空")
 	}
-	if sighTemp:=platform.ToDoList.Get(toDoID);sighTemp!=nil{
-		sigh:=sighTemp.(chan struct{})
-		sigh<-struct{}{}
-	}else{
+	if sighTemp := platform.ToDoList.Get(toDoID); sighTemp != nil {
+		sigh := sighTemp.(chan struct{})
+		sigh <- struct{}{}
+	} else {
 		return nil
 	}
 	tx, err := database.Mysql.Begin()
@@ -970,6 +971,126 @@ func delToDo(c echo.Context) (err error) {
 	return
 }
 
-func checkPass(c echo.Context)err error    {
+func updatePass(c echo.Context) (err error) {
+	uuid := c.QueryParam("uuid")                      //获取uuid
+	oldPass := c.QueryParam("oldPass")                //获取旧密码
+	newPass := c.QueryParam("newPass")                //获取新设置的密码
+	if uuid == "" || oldPass == "" || newPass == "" { //校验uuid和密码
+		return c.String(http.StatusUnauthorized, "密码不许为空")
+	}
+	user := &model.User{}
+	stmt, err := database.Mysql.Prepare("select * from user where uuid = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	result, err := stmt.Query(uuid)
+	defer result.Close()
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	if result.Next() { //检测是否已注册
+		err = result.Scan(&user.UUID, &user.Name, &user.Pwd, &user.Mailbox, &user.RegTime, &user.LastTime)
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+	} else {
+		return c.String(http.StatusUnauthorized, "该用户未注册")
+	}
+	if !(uuid == user.UUID && oldPass == user.Pwd) {
+		return c.String(http.StatusUnauthorized, "原密码错误，请重新输入")
+	}
 
+	// "update posts set content = ?, author = ? where id = ?"
+	tx, err := database.Mysql.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			if tx.Commit() != nil {
+				syslog.Clog.Errorln(true, err)
+				tx.Rollback()
+			} else {
+				c.String(http.StatusOK, "密码更新成功")
+			}
+		}
+	}()
+	stmt2, err := tx.Prepare("update user set pwd = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt2.Close()
+	_, err = stmt2.Exec(newPass)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return errors.New("更新密码错误，请稍后重试")
+	}
+	// return c.String(http.StatusOK, user.UUID)
+	return
+}
+
+func updateEmail(c echo.Context) (err error) {
+	uuid := c.QueryParam("uuid")                        //获取uuid
+	oldEmail := c.QueryParam("oldEmail")                //获取旧邮箱
+	newEmail := c.QueryParam("newEmail")                //获取新设置的邮箱
+	if uuid == "" || oldEmail == "" || newEmail == "" { //校验uuid和邮箱
+		return c.String(http.StatusUnauthorized, "邮箱不许为空")
+	}
+	user := &model.User{}
+	stmt, err := database.Mysql.Prepare("select * from user where uuid = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	result, err := stmt.Query(uuid)
+	defer result.Close()
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	if result.Next() { //检测是否已注册
+		err = result.Scan(&user.UUID, &user.Name, &user.Pwd, &user.Mailbox, &user.RegTime, &user.LastTime)
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+	} else {
+		return c.String(http.StatusUnauthorized, "该用户未注册")
+	}
+	if !(uuid == user.UUID && oldEmail == user.Mailbox) {
+		return c.String(http.StatusUnauthorized, "原邮箱错误，请重新输入")
+	}
+
+	// "update posts set content = ?, author = ? where id = ?"
+	tx, err := database.Mysql.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			if tx.Commit() != nil {
+				syslog.Clog.Errorln(true, err)
+				tx.Rollback()
+			} else {
+				c.String(http.StatusOK, "邮箱更新成功")
+			}
+		}
+	}()
+	stmt2, err := tx.Prepare("update user set mailbox = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt2.Close()
+	_, err = stmt2.Exec(newEmail)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return errors.New("更新邮箱错误，请稍后重试")
+	}
+	// return c.String(http.StatusOK, user.UUID)
+	return
 }

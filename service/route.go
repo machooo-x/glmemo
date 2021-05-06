@@ -22,6 +22,8 @@ func RegRouter(e *echo.Echo) {
 	e.GET("/querybylike", queryByLike)
 	e.GET("/getnetip", getNetIP)
 	e.GET("/getToDoList", getToDoList)
+	e.GET("/updatePass", updatePass)
+	e.GET("/updateEmail", updateEmail)
 
 	e.POST("/addrecord", addRecord)
 	e.POST("/addToDo", addToDo)
