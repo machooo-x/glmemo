@@ -887,8 +887,6 @@ func addToDo(c echo.Context) (err error) {
 						if err := d.DialAndSend(m); err != nil {
 							syslog.Clog.Errorln(true)
 						}
-						
-
 						tx, err := database.Mysql.Begin()
 						defer func() {
 							if err != nil {
@@ -970,4 +968,8 @@ func delToDo(c echo.Context) (err error) {
 		return err
 	}
 	return
+}
+
+func checkPass(c echo.Context)err error    {
+
 }
