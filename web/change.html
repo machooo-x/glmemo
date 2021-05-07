@@ -241,11 +241,8 @@
                             this.filename = document.getElementById('file').files[0].name;
                             console.log(this.filename);
                             console.log(this.filepath);
-                        } else {
-                            clearInterval(t); //清除定时器
-                            alert("请选择文件进行上传...");
                         }
-                    }, 5000);
+                    }, 100);
                 },
                 rmfile: function () {
                     this.filepath = ""

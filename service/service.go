@@ -437,14 +437,14 @@ func addRecord(c echo.Context) (err error) {
 	if isCommit == "1" {
 		str = "INSERT INTO record(id,user_id,update_time,title,text,tag_name,filename,filepath,status) values(?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id = ?, user_id = ?, update_time = ?, title = ?, text = ?, tag_name = ?,filename = ?, filepath = ?, status = ?"
 	} else if isCommit == "0" { // 如果不是新建的话，将数据插入到临时文案表中，备份修改，便于下次获取修改记录
-		str = "INSERT INTO temp_record(record_id,user_id,update_time,title,text,tag_name,filepath,is_add_save) VALUE(?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE record_id=?,user_id = ?,update_time = ?, title = ?, text= ?, tag_name = ?, filepath = ?, is_add_save = ?, status = ?"
+		str = "INSERT INTO temp_record(record_id,user_id,update_time,title,text,tag_name,filepath,is_add_save) VALUE(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE record_id=?,user_id = ?,update_time = ?, title = ?, text= ?, tag_name = ?, filepath = ?, is_add_save = ?"
 		stmt, err := tx.Prepare(str)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			return err
 		}
 		defer stmt.Close()
-		_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FilePath, isAddSave, "0", recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FilePath, isAddSave, "0")
+		_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FilePath, isAddSave, recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FilePath, isAddSave)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			if err.Error() == "Error 1406: Data too long for column 'title' at row 1" {
@@ -848,7 +848,7 @@ func addToDo(c echo.Context) (err error) {
 
 	type req struct { // 用于获取用户输入内容的参数
 		ToDoID          string
-		UserID          string `json:userID`
+		UserID          string `json:"userID"`
 		Title           string `json:"title"`
 		Text            string `json:"text"`
 		RemindTime      string `json:"remindTime"`
