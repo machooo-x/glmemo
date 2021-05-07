@@ -30,6 +30,7 @@ type Record struct {
 	FileName string `json:"filename"`
 	FileType string `json:"filetype"`
 	Date     string `json:"date"`
+	Status   string `json:"status"`
 }
 
 // Tag ...

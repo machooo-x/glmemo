@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"glmemo/config"
+	"glmemo/helper/syslog"
+	"time"
 
 	// mysql driver
 	_ "github.com/go-sql-driver/mysql"
@@ -145,5 +147,25 @@ func init() {
 	// 	panic(err)
 	// }
 
+	{ // 初始化管理员用户
+		tx, err := Mysql.Begin() // 开启事务
+		defer func() {
+			if err != nil {
+				tx.Rollback() // 有错误则直接回滚，不向后进行操作
+			} else {
+				if tx.Commit() != nil { // 提交失败则回滚
+					syslog.Clog.Errorln(true, err)
+					tx.Rollback()
+				}
+			}
+		}()
+		stmt, err := tx.Prepare("insert into manager values(?,?,?,?,?)")
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return
+		}
+		defer stmt.Close()
+		time := time.Now().Unix()
+		stmt.Exec(1, "admin", "admin", time, time) // 在用户表中新建数据
+	}
 }
-

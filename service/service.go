@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"glmemo/config"
@@ -52,6 +53,25 @@ func login(c echo.Context) (err error) {
 	}
 	if !(name == user.Name && pwd == user.Pwd) {
 		return c.String(http.StatusUnauthorized, "密码错误，请重新输入")
+	}
+
+	tx, err := database.Mysql.Begin()
+	defer func() {
+		if tx.Commit() != nil {
+			syslog.Clog.Errorln(true, err)
+			tx.Rollback()
+		}
+	}()
+	stmt, err = tx.Prepare("UPDATE user SET last_time = ? WHERE name = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(time.Now().Unix(), name)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return
 	}
 	return c.String(http.StatusOK, user.UUID)
 }
@@ -133,23 +153,41 @@ func getRecordList(c echo.Context) (err error) {
 	if uuid == "" {
 		return c.String(http.StatusUnauthorized, "用户uuid不许为空")
 	}
+	status := c.QueryParam("status") // 获取用户的id
+
 	records := make([]*model.Record, 0)
-	stmt, err := database.Mysql.Prepare("select id,user_id,title,text,tag_name,filepath,update_time from record where user_id = ? order by `update_time` desc")
-	if err != nil {
-		syslog.Clog.Errorln(true, err)
-		return err
-	}
-	defer stmt.Close()
-	result, err := stmt.Query(uuid) // 查找该用户所有的记录并根据时间倒序排列
-	defer result.Close()
-	if err != nil {
-		syslog.Clog.Errorln(true, err)
-		return err
+	result := new(sql.Rows)
+	if status != "" && status == "0" {
+		stmt, err := database.Mysql.Prepare("select id,user_id,title,text,tag_name,filepath,update_time,status from record where status = ? order by `update_time` asc")
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		defer stmt.Close()
+		result, err = stmt.Query(status) // 查找该用户所有的记录并根据时间倒序排列
+		defer result.Close()
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+	} else {
+		stmt, err := database.Mysql.Prepare("select id,user_id,title,text,tag_name,filepath,update_time,status from record where user_id = ? order by `update_time` desc")
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		defer stmt.Close()
+		result, err = stmt.Query(uuid) // 查找该用户所有的记录并根据时间倒序排列
+		defer result.Close()
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
 	}
 	var dataTemp int64
 	for result.Next() {
 		record := &model.Record{}
-		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &record.TagName, &record.FilePath, &dataTemp)
+		err = result.Scan(&record.ID, &record.UUID, &record.Title, &record.Text, &record.TagName, &record.FilePath, &dataTemp, &record.Status)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			return err
@@ -397,16 +435,16 @@ func addRecord(c echo.Context) (err error) {
 	var str string
 	// 如果是提交的话，将数据更新到文案表中   此处ON DUPLICATE KEY标志着如果存在则更新，不存在则添加
 	if isCommit == "1" {
-		str = "INSERT INTO record(id,user_id,update_time,title,text,tag_name,filename,filepath) values(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id = ?, user_id = ?, update_time = ?, title = ?, text = ?, tag_name = ?,filename = ?, filepath = ?"
+		str = "INSERT INTO record(id,user_id,update_time,title,text,tag_name,filename,filepath,status) values(?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id = ?, user_id = ?, update_time = ?, title = ?, text = ?, tag_name = ?,filename = ?, filepath = ?, status = ?"
 	} else if isCommit == "0" { // 如果不是新建的话，将数据插入到临时文案表中，备份修改，便于下次获取修改记录
-		str = "INSERT INTO temp_record(record_id,user_id,update_time,title,text,tag_name,filepath,is_add_save) VALUE(?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE record_id=?,user_id = ?,update_time = ?, title = ?, text= ?, tag_name = ?, filepath = ?, is_add_save = ?"
+		str = "INSERT INTO temp_record(record_id,user_id,update_time,title,text,tag_name,filepath,is_add_save) VALUE(?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE record_id=?,user_id = ?,update_time = ?, title = ?, text= ?, tag_name = ?, filepath = ?, is_add_save = ?, status = ?"
 		stmt, err := tx.Prepare(str)
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			return err
 		}
 		defer stmt.Close()
-		_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FilePath, isAddSave, recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FilePath, isAddSave)
+		_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FilePath, isAddSave, "0", recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FilePath, isAddSave, "0")
 		if err != nil {
 			syslog.Clog.Errorln(true, err)
 			if err.Error() == "Error 1406: Data too long for column 'title' at row 1" {
@@ -422,7 +460,7 @@ func addRecord(c echo.Context) (err error) {
 		return err
 	}
 	defer stmt.Close()
-	_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FileName, reqData.FilePath, recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FileName, reqData.FilePath)
+	_, err = stmt.Exec(recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FileName, reqData.FilePath, "0", recordID, userID, time.Now().Unix(), reqData.Title, reqData.Text, reqData.TagName, reqData.FileName, reqData.FilePath, "0")
 	if err != nil {
 		syslog.Clog.Errorln(true, err)
 		return err
@@ -1092,5 +1130,216 @@ func updateEmail(c echo.Context) (err error) {
 		return errors.New("更新邮箱错误，请稍后重试")
 	}
 	// return c.String(http.StatusOK, user.UUID)
+	return
+}
+
+func getAllUser(c echo.Context) (err error) {
+	id := c.QueryParam("id") //获取id
+	if id == "" {            //校验管理员id
+		return c.String(http.StatusUnauthorized, "请使用管理员账号登录")
+	}
+	userList := make([]*model.User, 0)
+	stmt, err := database.Mysql.Prepare("select * from user")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	result, err := stmt.Query()
+	defer result.Close()
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	for result.Next() { //检测是否已注册
+		user := &model.User{}
+		err = result.Scan(&user.UUID, &user.Name, &user.Pwd, &user.Mailbox, &user.RegTime, &user.LastTime)
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		userList = append(userList, user)
+	}
+
+	return c.JSON(http.StatusOK, &userList)
+}
+
+func manageLogin(c echo.Context) (err error) {
+	name := c.QueryParam("name") //获取用户名
+	pwd := c.QueryParam("pwd")   //获取密码
+	if name == "" || pwd == "" { //校验用户名和密码
+		return c.String(http.StatusUnauthorized, "用户名和密码不许为空")
+	}
+	user := &model.User{}
+	stmt, err := database.Mysql.Prepare("select * from manager where name = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	result, err := stmt.Query(name)
+	defer result.Close()
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	if result.Next() { //检测是否是管理员账号
+		err = result.Scan(&user.UUID, &user.Name, &user.Pwd, &user.RegTime, &user.LastTime)
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+	} else {
+		return c.String(http.StatusUnauthorized, "非管理员账号！")
+	}
+	if !(name == user.Name && pwd == user.Pwd) {
+		return c.String(http.StatusUnauthorized, "密码错误，请重新输入")
+	}
+	tx, err := database.Mysql.Begin()
+	defer func() {
+		if tx.Commit() != nil {
+			syslog.Clog.Errorln(true, err)
+			tx.Rollback()
+		}
+	}()
+	stmt, err = tx.Prepare("UPDATE manager SET last_time = ? WHERE name = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(time.Now().Unix(), name)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return
+	}
+	return c.String(http.StatusOK, user.UUID)
+}
+
+func delUser(c echo.Context) (err error) {
+	uuid := c.QueryParam("uuid")
+	if uuid == "" {
+		return c.String(http.StatusUnauthorized, "删除的待办id不许为空")
+	}
+
+	tx, err := database.Mysql.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			if tx.Commit() != nil {
+				syslog.Clog.Errorln(true, err)
+				tx.Rollback()
+			} else {
+				syslog.Clog.Infoln(true, "删除用户成功 ->", uuid)
+			}
+		}
+	}()
+	stmt, err := tx.Prepare("delete from temp_record WHERE user_id = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(uuid)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	stmt, err = tx.Prepare("delete from record WHERE user_id = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(uuid)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	stmt, err = tx.Prepare("delete from tag WHERE user_id = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(uuid)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+
+	stmt, err = database.Mysql.Prepare("select id from schedule where user_id = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	result, err := stmt.Query(uuid) // 查找该用户所有的记录并根据时间倒序排列
+	defer result.Close()
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	for result.Next() {
+		toDoID := ""
+		err = result.Scan(&toDoID)
+		if err != nil {
+			syslog.Clog.Errorln(true, err)
+			return err
+		}
+		if sighTemp := platform.ToDoList.Get(toDoID); sighTemp != nil {
+			sigh := sighTemp.(chan struct{})
+			sigh <- struct{}{}
+		}
+	}
+	stmt, err = tx.Prepare("delete from schedule WHERE user_id = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(uuid)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	stmt, err = tx.Prepare("delete from user WHERE uuid = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(uuid)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return err
+	}
+	return
+}
+
+func checkRecordSuc(c echo.Context) (err error) {
+	recordid := c.QueryParam("recordid")
+	if recordid == "" {
+		return c.String(http.StatusUnauthorized, "审核的记录id不许为空")
+	}
+	tx, err := database.Mysql.Begin()
+	defer func() {
+		if tx.Commit() != nil {
+			syslog.Clog.Errorln(true, err)
+			tx.Rollback()
+		}
+	}()
+	stmt, err := tx.Prepare("UPDATE record SET status = 1 WHERE id = ?")
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(recordid)
+	if err != nil {
+		syslog.Clog.Errorln(true, err)
+		return
+	}
 	return
 }

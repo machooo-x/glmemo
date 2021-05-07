@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="zh-cn">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static\css\usual.css">
+    <script src="static/jquery/js/jquery.min.js"></script>
+    <script src="static/bootstrap/js/popper.min.js"></script>
+    <script src="static/bootstrap/js/bootstrap.min.js"></script>
+    <script src="static/vuejs/vue.min.js"></script>
+    <script src="static/vuejs/vue-resource.min.js"></script>
+    <title>美好生活备忘录</title>
+    <style>
+        section {
+            height: 100%;
+            top: 50%;
+            margin-left: -25px;
+            color: rgb(166, 173, 177);
+        }
+
+        p.sansserif {
+            font-family: Arial, Helvetica, sans-serif;
+            color: black;
+            font-size: medium;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <nav class="navbar navbar-inverse navbar-static-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-1">
+                        <div style="text-align: left;">
+                            <a href="#"><img src="./image/login.png" alt="logo" title="回到主页面"></a>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                            <ul class="nav navbar-nav">
+                                <li><a :href="'/web/manager.html?uuid=' + this.uuid">用户管理</a></li>
+                                <li class="active"><a href="#">文案审核</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <p class="sys-name" style="text-align: center; font-size: 26px; line-height:50px ;margin-bottom: 0px;   color: rgb(195, 201, 202);
+                               font-family: Arial, Helvetica, sans-serif;">美好生活备忘录管理页面</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="text-align: right;">
+                            <a href="/web/login.html"><img src="./image/logout.png" title="退出账号"> </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+
+        <section>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-8">
+
+                        <ul v-if="records.length==0" class="list-grou">
+                            <br><br><br><br>
+                            <h2 style="text-align: center;">暂无需要审核的文案记录</h2>
+                        </ul>
+
+                        <ul v-if="records!==null" class="list-grou">
+                            <li v-for="record in records" class="list-group-item">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">{{record.title}}</h3>
+                                    </div>
+                                    <div class="panel-body" style="height: 30px;">
+                                        <div id="date" style="float: left;">
+                                            <p>{{record.date}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="panel-body" style="font-style: inherit;">
+                                        <p class="sansserif"> {{record.text}}</p>
+
+                                        <div style="float: left;">
+                                            <video v-if="record.filetype=='mp4'&&netip!=''" height="300" width="400"
+                                                controls>
+                                                <source :src="'http://'+netip+'/'+record.filepath" type="video/mp4">
+                                                您的浏览器不支持Video标签。
+                                            </video>
+                                        </div>
+                                        <div>
+                                            <a v-if="record.filetype=='img'&&netip!=''"
+                                                :href="'http://'+netip+'/'+record.filepath" target="_blank">
+                                                <img :src="'http://'+netip+'/'+record.filepath" height="300" width="400"
+                                                    alt="测试">
+                                            </a>
+                                        </div>
+                                        <br>
+                                        <div>
+                                            <a><button class="btn btn-info" data-toggle="modal"
+                                                    data-target="#checkrecordModal"
+                                                    @click="initactiveRecord(record.id,record.tagname,record.uuid)">审核通过</button></a>
+                                            <a><button class="btn btn-warning" data-toggle="modal"
+                                                    data-target="#ackDelModal"
+                                                    @click="initactiveRecord(record.id,record.tagname,record.uuid)">删除</button></a>
+                                        </div>
+                                    </div>
+
+                                    <!-- checkrecordModal -->
+                                    <div class="modal fade" id="checkrecordModal" tabindex="-1" role="dialog"
+                                        aria-labelledby="shareModalLabel">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close"><span
+                                                            aria-hidden="true">&times;</span></button>
+                                                    <p class="modal-title" id="shareModalLabel" style="color: red;">提示
+                                                    </p>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p> 点击确认后，将表明改文案无异常，不改动的话不会再次进行审核</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default"
+                                                        data-dismiss="modal">取消</button>
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                                        @click="checkRecordSuc">确认</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- ackDelModal -->
+                                    <div class="modal fade" id="ackDelModal" tabindex="-1" role="dialog"
+                                        aria-labelledby="myModalLabel">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close"><span
+                                                            aria-hidden="true">&times;</span></button>
+                                                    <p class="modal-title" id="myModalLabel" style="color: red;">提示</p>
+                                                </div>
+                                                <div class="modal-body">
+                                                    确认删除后，该条记录将不复存在！（切记谨慎操作）
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default"
+                                                        data-dismiss="modal">取消</button>
+                                                    <button type="button" class="btn btn-primary"
+                                                        @click="delrecord">确认</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-md-2">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>machooo@qq.com</p>
+        </footer>
+    </div>
+    <script type="text/javascript">
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                uuid: "",
+                records: [],
+                netip: "",
+                activeRecordID: "",
+                activeTagName: "",
+                activeUUID: "",
+
+            },
+            created: function () {
+                this.getnetip()
+            },
+            mounted: function () {
+                var url = location.search; //获取url中"?"符后的字串
+                var theRequest = new Object();
+                if (url.indexOf("?") != -1) {
+                    var str = url.substr(1);
+                    strs = str.split("&");
+                    for (var i = 0; i < strs.length; i++) {
+                        theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                    }
+                }
+                this.uuid = theRequest.uuid
+                console.log(this.uuid);
+                this.init()
+            },
+            methods: {
+                init: function () {
+                    this.$http.get('/getrecordlist?uuid=' + this.uuid + "&status=0").then(function (res) {
+                            this.records = res.body
+                        },
+                        function (res) {
+                            alert("获取备忘录信息有误，请稍后重试")
+                        });
+                },
+                getnetip: function () {
+                    this.$http.get('/getnetip').then(function (res) {
+                            this.netip = res.body;
+                        },
+                        function (res) {
+                            alert("获取服务器地址有误，请稍后重试")
+                        });
+                },
+                initactiveRecord: function (id, tagname, uuid) {
+                    this.activeRecordID = id
+                    console.log(this.activeRecordID);
+                    this.activeTagName = tagname
+                    console.log(this.activeTagName);
+                    this.activeUUID = uuid
+                    console.log(this.activeUUID);
+                },
+                checkRecordSuc: function () {
+                    console.log("审核通过~");
+                    this.$http.put('/checkRecordSuc?recordid=' + this.activeRecordID).then(
+                        function () {
+                            window.location.href = "/web/checkrecord.html?uuid=" + this.uuid
+                        },
+                        function (res) {
+                            alert("审核记录有误，请稍后重试")
+                        });
+                },
+                delrecord: function () {
+                    this.$http.delete('/delrecord?uuid=' + this.activeUUID + '&recordid=' + this
+                        .activeRecordID +
+                        '&tagname=' + this.activeTagName).then(
+                        function () {
+                            window.location.href = "/web/checkrecord.html?uuid=" + this.uuid
+                        },
+                        function (res) {
+                            alert("删除记录有误，请稍后重试")
+                        });
+                },
+            },
+        });
+    </script>
+</body>
+
+</html>

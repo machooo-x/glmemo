@@ -55,7 +55,8 @@
                         <div style="text-align: right;">
                             <a :href="'/web/change.html?uuid=' + this.uuid"><img src="./image/add.png" title="添加备忘">
                             </a>
-                            <a :href="'/web/changeuserinfo.html?uuid=' + this.uuid"><img src="./image/set.png" title="修改个人信息">
+                            <a :href="'/web/changeuserinfo.html?uuid=' + this.uuid"><img src="./image/set.png"
+                                    title="修改个人信息">
                             </a>
                             <a href="/web/login.html"><img src="./image/logout.png" title="退出账号"> </a>
                         </div>
@@ -101,14 +102,14 @@
                                         <p class="sansserif"> {{record.text}}</p>
 
                                         <div style="float: left;">
-                                            <video v-if="record.filetype=='mp4'" height="300" width="400" controls>
+                                            <video v-if="record.filetype=='mp4'&&netip!=''" height="300" width="400" controls>
                                                 <source :src="'http://'+netip+'/'+record.filepath" type="video/mp4">
                                                 您的浏览器不支持Video标签。
                                             </video>
                                         </div>
                                         <div style="float: left;">
-                                            <a v-if="record.filetype=='img'" :href="'http://'+netip+'/'+record.filepath"
-                                                target="_blank">
+                                            <a v-if="record.filetype=='img'&&netip!=''"
+                                                :href="'http://'+netip+'/'+record.filepath" target="_blank">
                                                 <img :src="'http://'+netip+'/'+record.filepath" height="300" width="400"
                                                     alt="测试">
                                             </a>
@@ -145,7 +146,9 @@
                 paramstr: "",
                 netip: "",
             },
-
+            created: function () {
+                this.getnetip()
+            },
             mounted: function () {
                 var url = location.search; //获取url中"?"符后的字串
                 var theRequest = new Object();
@@ -169,7 +172,6 @@
                             alert("获取备忘录信息有误，请稍后重试")
                         });
                     this.gettags()
-                    this.getnetip()
                 },
                 gettags: function () {
                     this.$http.get('/getalltag?uuid=' + this.uuid).then(function (res) {

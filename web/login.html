@@ -74,6 +74,7 @@
             },
 
             methods: {
+
                 login: function () {
                     if (this.name == "") {
                         alert("用户名不许为空")
@@ -84,6 +85,14 @@
                     }
                     if (this.isManager) {
                         console.log(this.isManager)
+                        this.$http.get('/manageLogin?name=' + this.name + '&pwd=' + this.pwd).then(
+                            function (
+                                res) {
+                                window.location.href = "/web/manager.html?uuid=" + res.body;
+                            },
+                            function (res) {
+                                alert(res.body)
+                            });
                     } else {
                         this.$http.get('/login?name=' + this.name + '&pwd=' + this.pwd).then(function (
                                 res) {

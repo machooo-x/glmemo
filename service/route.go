@@ -10,6 +10,8 @@ func RegRouter(e *echo.Echo) {
 	e.GET("/login", login)
 	e.GET("/getrecordlist", getRecordList)
 	e.GET("/regist", regist)
+	e.GET("/manageLogin", manageLogin)
+	
 
 	e.GET("/showrecord", showRecord)
 	// e.GET("/getfilename", getFilename)
@@ -24,15 +26,18 @@ func RegRouter(e *echo.Echo) {
 	e.GET("/getToDoList", getToDoList)
 	e.GET("/updatePass", updatePass)
 	e.GET("/updateEmail", updateEmail)
+	e.GET("/getAllUser", getAllUser)
 
 	e.POST("/addrecord", addRecord)
 	e.POST("/addToDo", addToDo)
 	e.POST("/uploadfile", uploadfile)
 
-	// e.PUT("/changerecord", changeRecord)
+	e.PUT("/checkRecordSuc", checkRecordSuc)
 
 	e.DELETE("/delrecord", delRecord)
 	e.DELETE("/deltempsave", delTempSave)
 	e.DELETE("/delToDo", delToDo)
+	e.DELETE("/delUser", delUser)
+
 
 }
