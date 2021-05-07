@@ -981,8 +981,6 @@ func delToDo(c echo.Context) (err error) {
 	if sighTemp := platform.ToDoList.Get(toDoID); sighTemp != nil {
 		sigh := sighTemp.(chan struct{})
 		sigh <- struct{}{}
-	} else {
-		return nil
 	}
 	tx, err := database.Mysql.Begin()
 	defer func() {
