@@ -906,13 +906,9 @@ func addToDo(c echo.Context) (err error) {
 					case <-sigh:
 					case <-time.After(time.Duration(reqData.RemindTimestamp-time.Now().Unix()) * 1000000000):
 						syslog.Clog.Infoln(true, reqData.RemindTimestamp)
-
-						// select{
 						m := gomail.NewMessage()
-
 						m.SetHeader("From", "glmemo@qq.com")
 						m.SetHeader("To", reqData.Mailbox)
-						//m.SetAddressHeader("Cc", "dan@example.com", "Dan")
 						m.SetHeader("Subject", "美好生活备忘录官方邮箱")
 						m.SetBody("text/html", fmt.Sprintf(`
 								<h1>来自美好生活备忘录里待办提醒~</h1>
@@ -1217,7 +1213,7 @@ func manageLogin(c echo.Context) (err error) {
 func delUser(c echo.Context) (err error) {
 	uuid := c.QueryParam("uuid")
 	if uuid == "" {
-		return c.String(http.StatusUnauthorized, "删除的待办id不许为空")
+		return c.String(http.StatusUnauthorized, "删除的用户id不许为空")
 	}
 
 	tx, err := database.Mysql.Begin()
