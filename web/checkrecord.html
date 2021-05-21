@@ -86,7 +86,7 @@
                                     <div class="panel-body" style="font-style: inherit;">
                                         <p class="sansserif"> {{record.text}}</p>
 
-                                        <div style="float: left;">
+                                        <div>
                                             <video v-if="record.filetype=='mp4'&&netip!=''" height="300" width="400"
                                                 controls>
                                                 <source :src="'http://'+netip+'/'+record.filepath" type="video/mp4">
